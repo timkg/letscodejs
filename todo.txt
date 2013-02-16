@@ -16,6 +16,7 @@ User stories:
 Engineering tasks:
 * automatic build
 - static code analysis (Linting)
+  -
 - CI (cont. integration)
 - server-side testing
 - client-side testing
