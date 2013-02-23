@@ -9,6 +9,7 @@
 
 	desc('Lint everything');
 	task('lint', [], function() {
+		console.log('LINT start');
 		var lint = require('./build/lint/lint_runner.js');
 		var files = new jake.FileList();
 		files.include('**/*.js');
@@ -17,6 +18,7 @@
 		if (!passed) {
 			fail('lint failed');
 		}
+		console.log('LINT done');
 	});
 
 
