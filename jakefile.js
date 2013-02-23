@@ -2,8 +2,10 @@
 	/*global desc, task, jake, fail, complete*/
 	"use strict";
 
+
 	desc('Build and test');
-	task('default', ['lint']);
+	task('default', ['lint', 'test']);
+
 
 	desc('Lint everything');
 	task('lint', [], function() {
@@ -17,6 +19,14 @@
 		}
 	});
 
+
+	desc('Test everything');
+	task('test', [], function() {
+		var reporter = require('nodeunit').reporters['default'];
+		reporter.run(['src/server/_server_test.js']);
+	});
+
+	
 	desc('Integration');
 	task('integrate', ['default'], function() {
 		console.log("1. Make sure 'git status' is clean");
@@ -29,6 +39,7 @@
 		console.log("5. 'git checkout master'");
 		
 	});
+
 
 	function nodeLintOptions() {
 		return {
