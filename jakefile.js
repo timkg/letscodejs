@@ -23,8 +23,14 @@
 	desc('Test everything');
 	task('test', [], function() {
 		var reporter = require('nodeunit').reporters['default'];
-		reporter.run(['src/server/_server_test.js']);
-	});
+		reporter.run(['src/server/_server_test.js'], null, function(failures) {
+			if (failures) {
+				fail('tests failed'); // tell jake to abort build when there are failures
+			}
+			complete(); // tell jake that async task is complete
+		});
+	}, {async: true});	// tell jake to wait for an async task
+						//that signalizes it's done with a call to complete()
 
 	
 	desc('Integration');
