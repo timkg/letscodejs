@@ -5,7 +5,7 @@ server = require("./server.js");
 http = require('http');
 
 exports.tearDown = function(done) {
-	// we want our test to call server.stop() after all tests are finished.
+	// we want our test close the server opened for testing after all tests are finished.
 	// we need to call done() in order for the test to work. If we don't call done(),
 	// nodeunit can't verify that everything finished as expected.
 	// server.stop() is asynchronous, so we can't just call done() after calling server.stop(),
@@ -16,7 +16,7 @@ exports.tearDown = function(done) {
 
 exports.test_serverReturnsHelloWorld = function(test) {
 	// test.expect(1);
-	server.start();
+	server.start(8080);
 	var request = http.get('http://localhost:8080');
 	request.on('response', function(response) {
 		response.setEncoding('utf8');

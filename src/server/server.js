@@ -2,13 +2,13 @@
 
 var server = require('http').createServer();
 
-exports.start = function() {
+exports.start = function(portNumber) {
 	server.on('request', function(request, response){
 		response.statusCode = 200;
 		response.end('Hello World');
 	});
 
-	server.listen(8080);
+	server.listen(portNumber);
 
 	console.log('server started');
 };
