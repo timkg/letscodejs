@@ -1,8 +1,9 @@
 "use strict";
 
-var http, server;
+var http, server, fs;
 server = require("./server.js");
 http = require('http');
+fs = require('fs');
 
 exports.test_serverReturnsHelloWorld = function(test) {
 	server.start(8080);
@@ -22,6 +23,11 @@ exports.test_serverReturnsHelloWorld = function(test) {
 };
 
 exports.test_serverServesAFile = function(test) {
+	var testDir = 'generated/test';
+	var testFile = testDir + '/test.html';
+
+	fs.writeFileSync(testFile, 'Hello World');
+
 	test.done();
 };
 
