@@ -4,18 +4,7 @@ var http, server;
 server = require("./server.js");
 http = require('http');
 
-exports.tearDown = function(done) {
-	// we want our test close the server opened for testing after all tests are finished.
-	// we need to call done() in order for the test to work. If we don't call done(),
-	// nodeunit can't verify that everything finished as expected.
-	// server.stop() is asynchronous, so we can't just call done() after calling server.stop(),
-	// because the proper order is not guaranteed. So we pass a reference to done as callback
-	// to server.stop(), which executes any callback parameters it encounters.
-	server.stop(done);
-};
-
 exports.test_serverReturnsHelloWorld = function(test) {
-	// test.expect(1);
 	server.start(8080);
 	var request = http.get('http://localhost:8080');
 	request.on('response', function(response) {
@@ -27,7 +16,27 @@ exports.test_serverReturnsHelloWorld = function(test) {
 		});
 		response.on('end', function() {
 			test.equals(responseData, 'Hello World', 'response equals Hello World');
-			test.done();
+			server.stop(test.done);
 		});
 	});
+};
+
+exports.test_serverThrowsExceptionWhenNoPortnumberPassed = function(test) {
+	test.throws(function() {
+		server.start();
+	});
+	test.done();
+};
+
+exports.test_serverRunsCallbackWhenStopCompletes = function(test) {
+	server.start(8080);
+	server.stop(test.done); // nodeunit would fail if test.done() wasn't called
+};
+
+
+exports.test_stopCalledTwiceInARowThrowsException = function(test) {
+	test.throws(function() {
+		server.stop();
+	});
+	test.done();
 };
