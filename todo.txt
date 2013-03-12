@@ -1,5 +1,8 @@
 WeeWikiPaint
 
+Rewatch episodes:
+- E15 & E16 - enforcing the node version. Skipped those.
+
 Minimum Marketable Features:
 * marketing homepage
 - collaborative painting page (very basic)
@@ -8,15 +11,10 @@ Minimum Marketable Features:
 - more collaborative features?
 
 User stories:
-* "hello world" server
-- "hello world" client
-- support multiple browsers
-- marketing copy
+* Serve one-file static homepage
+- Serve 404 for everything else
+- Marketing copy
+- Publish to Internet
 
 Engineering tasks:
-* automatic build
-- static code analysis (Linting)
-  -
-- CI (cont. integration)
-- server-side testing
-- client-side testing
+- serve a file
