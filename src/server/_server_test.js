@@ -21,6 +21,10 @@ exports.test_serverReturnsHelloWorld = function(test) {
 	});
 };
 
+exports.test_serverServesAFile = function(test) {
+	test.done();
+};
+
 exports.test_serverThrowsExceptionWhenNoPortnumberPassed = function(test) {
 	test.throws(function() {
 		server.start();

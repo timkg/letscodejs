@@ -8,7 +8,7 @@ exports.start = function(portNumber) {
 	}
 
 	server.on('request', function(request, response){
-		response.statusCode = 200;
+		
 		response.end('Hello World');
 	});
 	server.listen(portNumber);
