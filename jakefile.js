@@ -24,7 +24,6 @@
 		var lint = require('./build/lint/lint_runner.js');
 		var files = new jake.FileList();
 		files.include('**/*.js');
-		var options = nodeLintOptions();
 		var passed = lint.validateFileList(files.toArray(), nodeLintOptions(), {});
 		if (!passed) {
 			fail('lint failed');
@@ -35,12 +34,16 @@
 
 	desc('Test everything');
 	task('test', [TEMP_TESTFILE_DIR], function() {
+		var files = new jake.FileList();
+		files.include('**/_*_test.js');
+		files.exclude('node_modules');
+
 		var reporter = require('nodeunit').reporters['default'];
-		reporter.run(['src/server/_server_test.js'], null, function(failures) {
+		reporter.run(files.toArray(), null, function(failures) {
 			if (failures) {
 				fail('tests failed'); // tell jake to abort build when there are failures
 			}
-			complete(); // tell jake that async task is complete
+			complete(); // tell jake that this async task is complete
 		});
 	}, {async: true});	// tell jake to wait for an async task
 						//that signalizes it's done with a call to complete()

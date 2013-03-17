@@ -28,6 +28,7 @@ exports.validateFileList = function(fileList, options, globals) {
 	var pass = true;
 	fileList.forEach(function(filename) {
 		pass = exports.validateFile(filename, options, globals) && pass;
+		// if the first one fails, we still iterate over all files...
 	});
 	return pass;
 };
