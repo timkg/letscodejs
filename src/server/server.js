@@ -15,9 +15,14 @@ exports.start = function(htmlFileToServe, portNumber) {
 	}
 
 	server.on('request', function(request, response) {
-		fs.readFile(htmlFileToServe, function(err, data) {
-			response.end(data);
-		});
+		if( request.url === '/' ) {
+			fs.readFile(htmlFileToServe, function(err, data) {
+				response.end(data);
+			});
+		} else {
+			response.statusCode = 404;
+			response.end();
+		}
 	});
 	server.listen(portNumber);
 };
