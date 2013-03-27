@@ -24,6 +24,8 @@
 		var lint = require('./build/lint/lint_runner.js');
 		var files = new jake.FileList();
 		files.include('**/*.js');
+		files.exclude('node_modules');
+		
 		var passed = lint.validateFileList(files.toArray(), nodeLintOptions(), {});
 		if (!passed) {
 			fail('lint failed');

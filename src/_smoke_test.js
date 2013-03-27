@@ -7,6 +7,7 @@
 	'use strict';
 
 	var http = require('http');
+	var fs = require('fs');
 	var child_process = require('child_process');
 	var serverProcess; // outer scope needed for tearDown()
 	
@@ -44,7 +45,8 @@
 	};
 
 	function runServer(callback) {
-		serverProcess = child_process.spawn("foreman", ['start']);
+		var procfileCommand = parseProcFile();
+		serverProcess = child_process.spawn(procfileCommand.command, procfileCommand.options);
 		
 		serverProcess.stdout.setEncoding('utf8');
 
@@ -76,6 +78,32 @@
 				callback(response, responseData);
 			});
 		});
+	}
+
+
+	/**
+	 * The Procfile holds the command that heroku uses to run our application.
+	 * We want to run our application via the same command for our local tests.
+	 * This way we test if the command works properly.
+	 * In order to do so, we need to replace the $PORT variable required by Heroku
+	 * with some specific portnumber used for our local tests.
+	 */
+	function parseProcFile() {
+		var procfileParser = require('procfile');
+		var file = fs.readFileSync('Procfile', 'utf8');
+		var parsed = procfileParser.parse(file);
+		// structure of "parsed" = {web: {command: 'command', options: ['opt1', '...']}}
+		// procfiles can contain multiple entries, we only care for "web" for now
+		var web = parsed.web;
+		// now we want to replace $PORT with a concrete port number
+		web.options = web.options.map(function(element) {
+			if( element === '$PORT' ) {
+				return '5000';
+			} else {
+				return element;
+			}
+		});
+		return web;
 	}
 
 }());
