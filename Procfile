@@ -1,1 +1,1 @@
-web: node src/server/weewikipaint 8080
+web: node src/server/weewikipaint 5000
