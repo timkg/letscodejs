@@ -10,7 +10,8 @@
 	var child_process = require('child_process');
 	var serverProcess; // outer scope needed for tearDown()
 	
-	var EXPECTED_HOMEPAGE_CONTENT = 'hello world';
+	var EXPECTED_HOMEPAGE_MARKER = 'WeeWikiPaint homepage';
+	var EXPECTED_404_MARKER = 'WeeWikiPaint 404 page';
 
 
 	exports.setUp = function(done) {
@@ -28,15 +29,19 @@
 
 	exports.test_canGetHomepage = function(test) {
 		httpGet('http://localhost:8080', function(response, responseData) {
-			test.equals(response.statusCode, 200, 'response statusCode is 200');
-			test.equals(responseData, EXPECTED_HOMEPAGE_CONTENT, 'returns index.html');
+			var gotHomepage = (responseData.indexOf(EXPECTED_HOMEPAGE_MARKER) !== -1);
+			test.ok(gotHomepage, 'returns index.html');
 			test.done();
 		});
 	};
 
-
-	// TODO - check for 404 page
-
+	exports.test_canGet404Page = function(test) {
+		httpGet('http://localhost:8080/fileDoesNotExist.html', function(response, responseData) {
+			var got404Page = (responseData.indexOf(EXPECTED_404_MARKER) !== -1);
+			test.ok(got404Page, 'returns 404.html');
+			test.done();
+		});
+	};
 
 	function runServer(callback) {
 		serverProcess = child_process.spawn("node", ['src/server/weewikipaint', '8080']);
