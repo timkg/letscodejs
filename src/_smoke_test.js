@@ -12,6 +12,12 @@
 	
 	var EXPECTED_HOMEPAGE_CONTENT = 'hello world';
 
+
+	exports.setUp = function(done) {
+		runServer(done);
+	};
+
+
 	exports.tearDown = function(done) {
 		serverProcess.on('exit', function() {
 			done();
@@ -20,37 +26,33 @@
 		serverProcess.kill();
 	};
 
-	exports.test_smoke_test = function(test) {
-		serverProcess = runServer(['src/server/weewikipaint', '8080'], function() {
-			httpGet('http://localhost:8080', function(response, responseData) {
-				test.equals(response.statusCode, 200, 'response statusCode is 200');
-				test.equals(responseData, EXPECTED_HOMEPAGE_CONTENT, 'returns index.html');
-				test.done();
-			});
-		});	
+	exports.test_canGetHomepage = function(test) {
+		httpGet('http://localhost:8080', function(response, responseData) {
+			test.equals(response.statusCode, 200, 'response statusCode is 200');
+			test.equals(responseData, EXPECTED_HOMEPAGE_CONTENT, 'returns index.html');
+			test.done();
+		});
 	};
 
 
 	// TODO - check for 404 page
 
 
-	function runServer(nodeArgs, callback) {
-		var process = child_process.spawn("node", nodeArgs);
+	function runServer(callback) {
+		serverProcess = child_process.spawn("node", ['src/server/weewikipaint', '8080']);
 		
-		process.stdout.setEncoding('utf8');
+		serverProcess.stdout.setEncoding('utf8');
 
-		process.stdout.on('data', function(chunk) {
+		serverProcess.stdout.on('data', function(chunk) {
 			console.log("stdout logged " + chunk);
 			if( chunk.trim() === 'Server started' ) {
 				callback();
 			}
 		});
 
-		process.stderr.on('data', function(chunk) {
+		serverProcess.stderr.on('data', function(chunk) {
 			console.log("stderr logged " + chunk);
 		});
-
-		return process;
 	}
 
 
