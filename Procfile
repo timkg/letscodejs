@@ -1,1 +1,1 @@
-web: node src/server/weewikipaint 5000
+web: node src/server/weewikipaint $PORT
