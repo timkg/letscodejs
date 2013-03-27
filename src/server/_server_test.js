@@ -85,22 +85,24 @@
 	};
 
 	function httpGet(url, callback) {
-		server.start(TEST_HOMEPAGE, TEST_404_FILE, 8080);
-		var request = http.get(url);
-		request.on('response', function(response) {
-			var responseData = '';
-			response.setEncoding('utf8');
+		server.start(TEST_HOMEPAGE, TEST_404_FILE, 8080, function() {
+			var request = http.get(url);
+			request.on('response', function(response) {
+				var responseData = '';
+				response.setEncoding('utf8');
 
-			response.on('data', function(chunk) {
-				responseData += chunk;
-			});
-
-			response.on('end', function() {
-				server.stop(function() {
-					callback(response, responseData);
+				response.on('data', function(chunk) {
+					responseData += chunk;
 				});
-			});
+
+				response.on('end', function() {
+					server.stop(function() {
+						callback(response, responseData);
+					});
+				});
+			});	
 		});
+		
 	}
 
 	function cleanUpFile(fileName) {

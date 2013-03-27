@@ -5,7 +5,7 @@
 	server = require('http').createServer();
 	fs = require('fs');
 
-	exports.start = function(htmlFileToServe, notFoundFileToServe, portNumber) {
+	exports.start = function(htmlFileToServe, notFoundFileToServe, portNumber, callback) {
 		if( !htmlFileToServe ) {
 			throw new Error('server.start() requires html file');
 		}
@@ -27,7 +27,7 @@
 				serveFile(response, notFoundFileToServe);
 			}
 		});
-		server.listen(portNumber);
+		server.listen(portNumber, callback);
 	};
 
 	exports.stop = function(callback) {
