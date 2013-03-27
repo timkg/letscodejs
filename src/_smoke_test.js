@@ -6,42 +6,53 @@
 
 	'use strict';
 
-	var child_process = require('child_process');
 	var http = require('http');
+	var child_process = require('child_process');
+	var serverProcess; // outer scope needed for tearDown()
+	
+	var EXPECTED_HOMEPAGE_CONTENT = 'hello world';
+
+	exports.tearDown = function(done) {
+		serverProcess.on('exit', function() {
+			done();
+		});
+
+		serverProcess.kill();
+	};
 
 	exports.test_smoke_test = function(test) {
-		var process = runServer(['src/server/weewikipaint', '8080']);
-		setTimeout(function() {
-			httpGet('http://localhost:8080', function() {
-				console.log('got file');
-				process.kill();
+		serverProcess = runServer(['src/server/weewikipaint', '8080'], function() {
+			httpGet('http://localhost:8080', function(response, responseData) {
+				test.equals(response.statusCode, 200, 'response statusCode is 200');
+				test.equals(responseData, EXPECTED_HOMEPAGE_CONTENT, 'returns index.html');
 				test.done();
 			});
-		}, 1000);
+		});	
 	};
 
 
-	function runServer(nodeArgs) {
+	// TODO - check for 404 page
+
+
+	function runServer(nodeArgs, callback) {
 		var process = child_process.spawn("node", nodeArgs);
 		
+		process.stdout.setEncoding('utf8');
+
 		process.stdout.on('data', function(chunk) {
 			console.log("stdout logged " + chunk);
+			if( chunk.trim() === 'Server started' ) {
+				callback();
+			}
 		});
 
 		process.stderr.on('data', function(chunk) {
 			console.log("stderr logged " + chunk);
 		});
 
-		process.on('exit', function(code, signal) {
-			console.log("exited with code " + code + " and signal " + signal);
-		});
-
 		return process;
 	}
 
-	function killServer() {
-
-	}
 
 	// todo - remove duplication with _server_test.js
 	function httpGet(url, callback) {
