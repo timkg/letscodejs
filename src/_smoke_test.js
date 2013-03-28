@@ -8,6 +8,7 @@
 
 	var http = require('http');
 	var fs = require('fs');
+	var procfileParser = require('procfile');
 	var child_process = require('child_process');
 	var serverProcess; // outer scope needed for tearDown()
 	
@@ -89,7 +90,6 @@
 	 * with some specific portnumber used for our local tests.
 	 */
 	function parseProcFile() {
-		var procfileParser = require('procfile');
 		var file = fs.readFileSync('Procfile', 'utf8');
 		var parsed = procfileParser.parse(file);
 		// structure of "parsed" = {web: {command: 'command', options: ['opt1', '...']}}
