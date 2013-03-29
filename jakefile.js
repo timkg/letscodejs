@@ -2,6 +2,8 @@
 	/*global desc, task, jake, fail, complete, directory */
 	"use strict";
 
+	var lint = require('./build/lint/lint_runner.js');
+
 	var GENERATED_DIR = 'generated';
 	var TEMP_TESTFILE_DIR = GENERATED_DIR + '/test';
 
@@ -19,26 +21,49 @@
 
 
 	desc('Lint everything');
-	task('lint', [], function() {
-		console.log('LINT start');
-		var lint = require('./build/lint/lint_runner.js');
+	task('lint', ['lintClient', 'lintServer']);
+
+	desc('Lint Server code');
+	task('lintServer', [], function() {
+		console.log('LINT Server');
+
+		var passed = lint.validateFileList(serverLintFiles(), nodeLintOptions(), {});
+		if (!passed) {
+			fail('lint server failed');
+		}
+
+	});
+
+	function serverLintFiles() {
 		var files = new jake.FileList();
 		files.include('**/*.js');
 		files.exclude('node_modules');
 		files.exclude('karma.conf.js');
+		files.exclude('src/client');
+		return files.toArray();
+	}
 
-		var passed = lint.validateFileList(files.toArray(), nodeLintOptions(), {});
+
+	desc('Lint Client code');
+	task('lintClient', [], function() {
+		console.log('LINT Client');
+
+		var passed = lint.validateFileList(clientLintFiles(), browserLintOptions(), {});
 		if (!passed) {
-			fail('lint failed');
+			fail('lint client failed');
 		}
-		console.log('LINT done');
+
 	});
+
+	function clientLintFiles() {
+		var files = new jake.FileList();
+		files.include('src/client/**/*.js');
+		return files.toArray();
+	}
 
 
 	desc('Test everything');
-	task('test', ['testClient', 'testServer'], function() {
-		
-	});
+	task('test', ['testClient', 'testServer']);
 
 
 	desc('Server tests');
@@ -97,6 +122,18 @@
 
 
 	function nodeLintOptions() {
+		var options = lintOptions();
+		options.node = true;
+		return options;
+	}
+
+	function browserLintOptions() {
+		var options = lintOptions();
+		options.browser = true;
+		return options;
+	}
+
+	function lintOptions() {
 		return {
 			bitwise:true,
 			curly:true,
@@ -110,10 +147,11 @@
 			nonew:true,
 			regexp:true,
 			undef:true,
-//			unused: true,
 			strict:true,
-			trailing:true,
-			node:true
+			trailing:true
 		};
 	}
+
+
+
 }());
