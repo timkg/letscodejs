@@ -11,6 +11,9 @@
 	var TEST_HOMEPAGE = TEST_DIR + '/test.html';
 	var TEST_404_FILE = TEST_DIR + '/test404.html';
 
+	var PORT = 8080;
+	var BASE_URL = 'http://localhost:' + PORT;
+
 	exports.tearDown = function(done) {
 		cleanUpFile(TEST_HOMEPAGE);
 		cleanUpFile(TEST_404_FILE);
@@ -21,7 +24,7 @@
 		var expectedData = "Hello World, what a coincidence";
 		fs.writeFileSync(TEST_HOMEPAGE, expectedData);
 
-		httpGet('http://localhost:8080', function(response, responseData) {
+		httpGet(BASE_URL, function(response, responseData) {
 			test.equals(response.statusCode, 200, 'response statusCode is 200');
 			test.equals(responseData, expectedData, 'correct response received from file');
 			test.done();
@@ -32,7 +35,7 @@
 		var expectedData = "Hello World, what a coincidence";
 		fs.writeFileSync(TEST_HOMEPAGE, expectedData);
 
-		httpGet('http://localhost:8080/index.html', function(response, responseData) {
+		httpGet(BASE_URL + '/index.html', function(response, responseData) {
 			test.equals(response.statusCode, 200, 'response statusCode is 200');
 			test.equals(responseData, expectedData, 'correct response received from file');
 			test.done();
@@ -65,7 +68,7 @@
 		var expectedData = "404 not found";
 		fs.writeFileSync(TEST_404_FILE, expectedData);
 
-		httpGet('http://localhost:8080/garblegarble', function(response, responseData) {
+		httpGet(BASE_URL + '/garblegarble', function(response, responseData) {
 			test.equals(response.statusCode, 404, 'response statusCode is 404');
 			test.equals(responseData, expectedData, 'returns custom 404 file');
 			test.done();

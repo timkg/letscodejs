@@ -1,11 +1,10 @@
 Dependencies
 
-node.js
-npm
+node.js + npm
 jake
 jshint
 heroku toolbelt
 nodeunit
 karma (prev. testacular)
 mocha
-chai
+expect.js

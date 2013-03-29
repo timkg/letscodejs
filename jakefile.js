@@ -25,6 +25,7 @@
 		var files = new jake.FileList();
 		files.include('**/*.js');
 		files.exclude('node_modules');
+		files.exclude('karma.conf.js');
 
 		var passed = lint.validateFileList(files.toArray(), nodeLintOptions(), {});
 		if (!passed) {
@@ -35,7 +36,14 @@
 
 
 	desc('Test everything');
-	task('test', [TEMP_TESTFILE_DIR], function() {
+	task('test', ['testClient', 'testServer'], function() {
+		
+	});
+
+
+	desc('Server tests');
+	task('testServer', [TEMP_TESTFILE_DIR], function() {
+		console.log('\n\nSERVER TESTS');
 		var files = new jake.FileList();
 		files.include('**/_*_test.js');
 		files.exclude('node_modules');
@@ -48,8 +56,14 @@
 			}
 			complete(); // tell jake that this async task is complete
 		});
-	}, {async: true});	// tell jake to wait for an async task
-						//that signalizes it's done with a call to complete()
+	}, {async: true}); // tell jake to wait for an async task that signalizes it's done with a call to complete()
+
+
+	desc('Client tests');
+	task('testClient', [], function() {
+		console.log('\n\nCLIENT TESTS');
+		sh('node node_modules/.bin/karma run', complete);
+	}, {async: true});
 
 	
 	desc('Integration');
@@ -64,6 +78,22 @@
 		console.log("5. 'git checkout master'");
 		
 	});
+
+
+	function sh(command, callback) {
+		var stdout = "";
+		var process = jake.createExec(command, {printStdout: true, printStderr: true});
+		process.on('stdout', function(chunk) {
+			stdout += chunk;
+		});
+		process.on('error', function(msg, code) {
+			fail(msg);
+		});
+		process.on('cmdEnd', function() {
+			callback(stdout);
+		});
+		process.run();
+	}
 
 
 	function nodeLintOptions() {
