@@ -25,7 +25,7 @@
 		var files = new jake.FileList();
 		files.include('**/*.js');
 		files.exclude('node_modules');
-		
+
 		var passed = lint.validateFileList(files.toArray(), nodeLintOptions(), {});
 		if (!passed) {
 			fail('lint failed');
@@ -39,6 +39,7 @@
 		var files = new jake.FileList();
 		files.include('**/_*_test.js');
 		files.exclude('node_modules');
+		files.exclude('client');
 
 		var reporter = require('nodeunit').reporters['default'];
 		reporter.run(files.toArray(), null, function(failures) {
