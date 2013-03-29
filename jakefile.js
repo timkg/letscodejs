@@ -3,13 +3,12 @@
 	"use strict";
 
 	var lint = require('./build/lint/lint_runner.js');
+	var nodeunit = require('nodeunit').reporters['default'];
 
 	var GENERATED_DIR = 'generated';
 	var TEMP_TESTFILE_DIR = GENERATED_DIR + '/test';
 
-
 	directory(TEMP_TESTFILE_DIR);
-
 
 	desc('Delete all generated temporary files');
 	task('clean', [], function() {
@@ -19,66 +18,29 @@
 	desc('Build and test');
 	task('default', ['lint', 'test']);
 
-
 	desc('Lint everything');
 	task('lint', ['lintClient', 'lintServer']);
 
 	desc('Lint Server code');
 	task('lintServer', [], function() {
-		console.log('LINT Server');
-
 		var passed = lint.validateFileList(serverLintFiles(), nodeLintOptions(), {});
-		if (!passed) {
-			fail('lint server failed');
-		}
-
+		if (!passed) { fail('lint server failed'); }
 	});
-
-	function serverLintFiles() {
-		var files = new jake.FileList();
-		files.include('**/*.js');
-		files.exclude('node_modules');
-		files.exclude('karma.conf.js');
-		files.exclude('src/client');
-		return files.toArray();
-	}
-
 
 	desc('Lint Client code');
 	task('lintClient', [], function() {
-		console.log('LINT Client');
-
 		var passed = lint.validateFileList(clientLintFiles(), browserLintOptions(), {});
-		if (!passed) {
-			fail('lint client failed');
-		}
-
+		if (!passed) { fail('lint client failed'); }
 	});
-
-	function clientLintFiles() {
-		var files = new jake.FileList();
-		files.include('src/client/**/*.js');
-		return files.toArray();
-	}
-
 
 	desc('Test everything');
 	task('test', ['testClient', 'testServer']);
 
-
 	desc('Server tests');
 	task('testServer', [TEMP_TESTFILE_DIR], function() {
 		console.log('\n\nSERVER TESTS');
-		var files = new jake.FileList();
-		files.include('**/_*_test.js');
-		files.exclude('node_modules');
-		files.exclude('client');
-
-		var reporter = require('nodeunit').reporters['default'];
-		reporter.run(files.toArray(), null, function(failures) {
-			if (failures) {
-				fail('tests failed'); // tell jake to abort build when there are failures
-			}
+		nodeunit.run(serverTestFiles().toArray(), null, function(failures) {
+			if (failures) { fail('tests failed'); }
 			complete(); // tell jake that this async task is complete
 		});
 	}, {async: true}); // tell jake to wait for an async task that signalizes it's done with a call to complete()
@@ -120,6 +82,20 @@
 		process.run();
 	}
 
+	function clientLintFiles() {
+		var files = new jake.FileList();
+		files.include('src/client/**/*.js');
+		return files.toArray();
+	}
+
+	function serverLintFiles() {
+		var files = new jake.FileList();
+		files.include('**/*.js');
+		files.exclude('node_modules');
+		files.exclude('karma.conf.js');
+		files.exclude('src/client');
+		return files.toArray();
+	}
 
 	function nodeLintOptions() {
 		var options = lintOptions();
@@ -150,6 +126,15 @@
 			strict:true,
 			trailing:true
 		};
+	}
+
+
+	function serverTestFiles() {
+		var files = new jake.FileList();
+		files.include('**/_*_test.js');
+		files.exclude('node_modules');
+		files.exclude('client');
+		return files;
 	}
 
 
