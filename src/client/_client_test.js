@@ -1,12 +1,16 @@
-(function() {
-	/*global describe, it, expect */
+/*global describe, it, expect, wwp */
 
+(function() {
 	"use strict";
 
-	describe('Nothing', function() {
+	describe('Drawing area', function() {
 
-		it('should run', function() {
-			expect('foo').to.equal('foo');
+		it('should be initialized in a specific div', function() {
+			wwp.initializeDrawingArea();
+
+			var div = document.getElementById('wwp-drawingArea');
+			expect(div.getAttribute('foo')).to.equal('bar');	
+			
 		});
 
 	});

@@ -16,7 +16,9 @@
 	});
 
 	desc('Build and test');
-	task('default', ['lint', 'test']);
+	task('default', ['lint', 'test'], function() {
+		console.log('\n\n OK');
+	});
 
 	desc('Lint everything');
 	task('lint', ['lintClient', 'lintServer']);
