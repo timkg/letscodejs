@@ -6,10 +6,21 @@
 	describe('Drawing area', function() {
 
 		it('should be initialized in a specific div', function() {
-			wwp.initializeDrawingArea();
+			var drawingAreaId = 'wwp-drawingArea';
+			var div = document.createElement('div');
+			div.setAttribute('id', drawingAreaId);
+			document.body.appendChild(div);
 
-			var div = document.getElementById('wwp-drawingArea');
-			expect(div.getAttribute('foo')).to.equal('bar');	
+			wwp.initializeDrawingArea(drawingAreaId);
+
+			var tagName = $(div).children()[0].tagName.toLowerCase();
+
+			expect(tagName).to.be.ok('drawing area container has child elements to hold svg drawings');
+			
+			if( tagName === 'svg' ) {
+
+			}
+			
 			
 		});
 

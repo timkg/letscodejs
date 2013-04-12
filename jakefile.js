@@ -96,6 +96,7 @@
 		files.exclude('node_modules');
 		files.exclude('karma.conf.js');
 		files.exclude('src/client');
+		files.exclude('client_vendors');
 		return files.toArray();
 	}
 
