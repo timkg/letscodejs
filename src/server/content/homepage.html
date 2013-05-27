@@ -41,6 +41,9 @@
             -moz-box-shadow: 0px 0px 15px 5px black;
             -webkit-box-shadow: 0px 0px 15px 5px black;
             box-shadow: 0px 0px 15px 5px black;
+
+            overflow: hidden;
+            padding-bottom: 30px;
         }
 
         header {
@@ -148,9 +151,37 @@
         }
     </style>
 
-    <script src="../../../vendor_client/jquery-1.8.2.js" type="text/javascript"></script>
-    <script src="../../../vendor_client/raphael-2.1.0.js" type="text/javascript"></script>
-    <script src="../../client/client.js" type="text/javascript"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js" type="text/javascript"></script>
+    <script  type="text/javascript">
+        wwp = {};
+
+        (function() {
+            "use strict";
+
+            var paper;
+
+            wwp.initializeDrawingArea = function(drawingAreaElement) {
+                paper = new Raphael(drawingAreaElement);
+                $(drawingAreaElement).on('click', function(event) {
+                    // TODO in test - account for padding, border, margin
+                    var divPageX = $(drawingAreaElement).offset().left;
+                    var divPageY = $(drawingAreaElement).offset().top;
+
+                    var relativeX = event.pageX - divPageX;
+                    var relativeY = event.pageY - divPageY;
+
+                    wwp.drawLine(0, 0, relativeX, relativeY);
+                });
+                return paper;
+            };
+
+            wwp.drawLine = function(startX, startY, endX, endY) {
+                paper.path("M" + startX + "," + startY + "L" + endX + "," + endY);
+            };
+
+        }());
+    </script>
 </head>
 
 <body>

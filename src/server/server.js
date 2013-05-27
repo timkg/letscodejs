@@ -2,9 +2,11 @@
 	/**/
 	"use strict";
 
-	var server, fs;
+	var server, fs, path, url;
 	server = require('http').createServer();
 	fs = require('fs');
+	path = require('path');
+	url = require('url');
 
 	exports.start = function(homepageToServe, notFoundPageToServe, portNumber, callback) {
 		if( !homepageToServe ) {
@@ -23,6 +25,10 @@
 			if( request.url === '/' || request.url === '/index.html') {
 				response.statusCode = 200;
 				serveFile(response, homepageToServe);
+			} else if (request.url.indexOf('.js') !== -1) {
+				var file = url.parse(request.url).path;
+				var pathToFile = path.normalize(process.cwd()+file);
+
 			} else {
 				response.statusCode = 404;
 				serveFile(response, notFoundPageToServe);
