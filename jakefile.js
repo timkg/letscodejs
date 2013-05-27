@@ -1,5 +1,5 @@
 (function() {
-	/*global desc, task, jake, fail, complete, directory */
+	/*global desc, task, jake, fail, complete, directory, console */
 	"use strict";
 
 	var lint = require('./build/lint/lint_runner.js');
@@ -19,6 +19,12 @@
 	task('default', ['lint', 'test'], function() {
 		console.log('\n\n OK');
 	});
+
+	desc("Start Testacular server for testing");
+	task("testacular", function() {
+		sh("node", ["node_modules/testacular/bin/testacular", "start", "build/testacular.conf.js"],
+			"Could not start Testacular server", complete);
+	}, {async: true});
 
 	desc('Lint everything');
 	task('lint', ['lintClient', 'lintServer']);

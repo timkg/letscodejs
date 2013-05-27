@@ -1,5 +1,5 @@
 (function() {
-
+	/**/
 	'use strict';
 
 	var http = require('http');
@@ -10,7 +10,7 @@
 	exports.test_appIsOnline = function(test) {
 		httpGet(HOMEPAGE_URL, function(response, responseData) {
 			var gotHomepage = (responseData.indexOf(EXPECTED_HOMEPAGE_MARKER) !== -1);
-			test.ok(gotHomepage, 'app is online');
+			test.ok(gotHomepage, 'home page should have contained test marker');
 			test.done();
 		});
 	};

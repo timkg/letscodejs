@@ -1,4 +1,5 @@
 (function() {
+	/**/
 	"use strict";
 
 	var http, server, fs, assert;
@@ -75,12 +76,12 @@
 		});
 	};
 
-	exports.test_serverRunsCallbackWhenStopCompletes = function(test) {
+	exports.test_runsCallbackWhenStopCompletes = function(test) {
 		server.start(TEST_HOMEPAGE, TEST_404_FILE, 8080);
-		server.stop(test.done); // nodeunit would fail if test.done() wasn't called, that's why we pass the callback
+		server.stop(test.done);
 	};
 
-	exports.test_stopCalledTwiceInARowThrowsException = function(test) {
+	exports.test_stopThrowsExceptionWhenNotRunning = function(test) {
 		test.throws(function() {
 			server.stop();
 		});

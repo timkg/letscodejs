@@ -12,6 +12,7 @@
     <option strict="true" />
     <option undef="true" />
     <option browser="true" />
+    <option node="true" />
     <option maxerr="50" />
   </component>
 </project>
