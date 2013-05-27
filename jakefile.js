@@ -20,12 +20,6 @@
 		console.log('\n\n OK');
 	});
 
-	desc("Start Testacular server for testing");
-	task("testacular", function() {
-		sh("node", ["node_modules/testacular/bin/testacular", "start", "build/testacular.conf.js"],
-			"Could not start Testacular server", complete);
-	}, {async: true});
-
 	desc('Lint everything');
 	task('lint', ['lintClient', 'lintServer']);
 
@@ -103,6 +97,7 @@
 		files.exclude('karma.conf.js');
 		files.exclude('src/client');
 		files.exclude('client_vendors');
+		files.exclude('vendor_client/**/*.js');
 		return files.toArray();
 	}
 

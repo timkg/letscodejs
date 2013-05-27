@@ -28,7 +28,7 @@
 			} else if (request.url.indexOf('.js') !== -1) {
 				var file = url.parse(request.url).path;
 				var pathToFile = path.normalize(process.cwd()+file);
-
+				serveFile(response, pathToFile);
 			} else {
 				response.statusCode = 404;
 				serveFile(response, notFoundPageToServe);
