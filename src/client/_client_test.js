@@ -1,5 +1,5 @@
 (function() {
-	/*global describe, it, expect, afterEach, beforeEach, wwp, $, Raphael */
+	/*global describe, it, expect, afterEach, beforeEach, wwp, $, Raphael, dump, console */
 	"use strict";
 
 	describe('Drawing area', function() {
@@ -40,33 +40,52 @@
 
 		it("takes border of canvas into account", function() {
 			$canvas.css({
-				border: "10px solid black"
-				, margin: "5px"
+				border:"10px solid black"
+				, margin:"5px"
 			});
 			paper = wwp.initializeDrawingArea($canvas[0]); // re-init after border change
-			var clickEvent = $.Event('click');
-			clickEvent.pageX = $canvas.offset().left + 30;
-			clickEvent.pageY = $canvas.offset().top + 30;
 
-			$canvas.trigger(clickEvent);
+			var pageX = 100;
+			var pageY = 100;
+			clickMouse($canvas, pageX, pageY);
+
+			var relativePosition = relativeOffset($canvas, pageX, pageY);
 
 			var elements = getElementsOnDrawingArea(paper);
-
-			expect(pathFor(elements[0])).to.equal('M0,0L30,30');
+			expect(elements.length).to.equal(1);
+			expect(pathFor(elements[0])).to.equal('M0,0L' + relativePosition.x + ',' + relativePosition.y);
 		});
 
 		it('responds to mouse events', function() {
-			var clickEvent = $.Event('click');
-			clickEvent.pageX = $canvas.offset().left + 30;
-			clickEvent.pageY = $canvas.offset().top + 30;
-
-			$canvas.trigger(clickEvent);
+			var pageX = 30;
+			var pageY = 30;
+			clickMouse($canvas, pageX, pageY);
 
 			var elements = getElementsOnDrawingArea(paper);
 
+			var relativePosition = relativeOffset($canvas, pageX, pageY);
+
 			expect(elements.length).to.equal(1);
-			expect(pathFor(elements[0])).to.equal('M0,0L30,30');
+			expect(pathFor(elements[0])).to.equal('M0,0L' + relativePosition.x + ',' + relativePosition.y);
 		});
+
+		function relativeOffset($element, pageX, pageY) {
+			var borderLeftWidth = parseInt($element.css('border-left-width'), 10);
+			var marginLeft = parseInt($element.css('margin-left'), 10);
+			var borderTopWidth = parseInt($element.css('border-top-width'), 10);
+			var marginTop = parseInt($element.css('margin-top'), 10);
+
+			var relativeX = pageX - ($element.offset().left + borderLeftWidth + marginLeft);
+			var relativeY = pageY - ($element.offset().top + borderTopWidth + marginTop);
+			return {x: relativeX, y: relativeY};
+		}
+
+		function clickMouse($element, pageX, pageY) {
+			var clickEvent = $.Event('click');
+			clickEvent.pageX = pageX;
+			clickEvent.pageY = pageY;
+			$element.trigger(clickEvent);
+		}
 
 		function getElementsOnDrawingArea(paper) {
 			var elements = [];

@@ -1,4 +1,4 @@
-/*global $, Raphael, wwp:true*/
+/*global $, Raphael, wwp:true, console*/
 wwp = {};
 
 (function() {
@@ -14,14 +14,14 @@ wwp = {};
 
 		// get values used to normalize position of click event in relation to target border and margin
 		// NOTE - calculating these here means faster performance, but client-side alterations
-		// of the drawing container after initialization leads to wrong lines
+		// of the drawing container require new call to this function to keep dimensions in sync
+		// TODO - remove duplication with _client_test.js, function relativeOffset()
 		borderTopWidth = parseInt($canvas.css('border-top-width'), 10);
 		borderLeftWidth = parseInt($canvas.css('border-left-width'), 10);
 		marginTop = parseInt($canvas.css('margin-top'), 10);
 		marginLeft = parseInt($canvas.css('margin-left'), 10);
 
-//		console.log('element has left border ' + borderLeftWidth + ' and left margin ' + marginLeft);
-
+		$canvas.unbind('click');
 		$canvas.on('click', function(event) {
 			wwp.drawLine(0, 0, event.pageX - $canvas.offset().left - borderLeftWidth - marginLeft, event.pageY - $canvas.offset().top - borderTopWidth - marginTop);
 		});
