@@ -1,60 +1,53 @@
 (function() {
-	/*global describe, it, expect, afterEach, wwp, $, Raphael */
+	/*global describe, it, expect, afterEach, beforeEach, wwp, $, Raphael */
 	"use strict";
 
 	describe('Drawing area', function() {
 
-		var drawingArea;
+		var drawingArea, paper;
+
+		var DRAWING_AREA_HEIGHT = 300;
+		var DRAWING_AREA_WIDTH = 600;
+
+		beforeEach(function() {
+			drawingArea = $('<div></div>')
+				.css({
+					height: DRAWING_AREA_HEIGHT
+					, width: DRAWING_AREA_WIDTH
+				});
+
+			$(document.body).append(drawingArea);
+
+			paper = wwp.initializeDrawingArea(drawingArea[0]);
+		});
 
 		afterEach(function() {
 			drawingArea.remove();
 		});
 
-		it('should be initialized with Raphael', function() {
-			drawingArea = $('<div></div>');
-			$(document.body).append(drawingArea);
-
-			wwp.initializeDrawingArea(drawingArea[0]);
-
-			var tagName = $(drawingArea).children()[0].tagName.toLowerCase();
-			if (Raphael.type === 'SVG') {
-				expect(tagName).to.equal('svg');
-			} else if (Raphael.type === 'VML') {
-				expect(tagName).to.equal('div');
-			} else {
-				throw new Error('Raphael doesn\'t support this browser!');
-			}
-		});
-
 		it('should have the same dimensions as its enclosing div', function() {
-			drawingArea = $('<div style="height: 300px; width: 600px">hi!</div>');
-			$(document.body).append(drawingArea);
-
-			var paper = wwp.initializeDrawingArea(drawingArea[0]);
-
-			expect(paper.height).to.equal(300);
-			expect(paper.width).to.equal(600);
+			expect(paper.height).to.equal(DRAWING_AREA_HEIGHT);
+			expect(paper.width).to.equal(DRAWING_AREA_WIDTH);
 		});
 
 		it('should draw a line', function() {
-			drawingArea = $('<div style="height: 300px; width: 600px"></div>');
-			$(document.body).append(drawingArea);
-
-			var paper = wwp.initializeDrawingArea(drawingArea[0]);
-
 			wwp.drawLine(20, 30, 30, 300);
 
-			var elements = [];
-			paper.forEach(function(element) {
-				elements.push(element);
-			});
-
+			var elements = getElementsOnDrawingArea(paper);
 			expect(elements.length).to.equal(1);
 			var element = elements[0];
 			var path = pathFor(element);
 
 			expect(path).to.equal("M20,30L30,300");
 		});
+
+		function getElementsOnDrawingArea(paper) {
+			var elements = [];
+			paper.forEach(function (element) {
+				elements.push(element);
+			});
+			return elements;
+		}
 
 		function pathFor(element) {
 			// Use 'Element.getBBox()' here instead of low-level DOM inspection?
