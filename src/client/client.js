@@ -7,7 +7,7 @@ wwp = {};
 	var paper, $canvas;
 
 	wwp.initializeDrawingArea = function(drawingAreaElement) {
-		var borderTopWidth, borderLeftWidth, marginTop, marginLeft;
+		var prevX, prevY, endX, endY, borderTopWidth, borderLeftWidth, marginTop, marginLeft;
 
 		paper = new Raphael(drawingAreaElement);
 		$canvas = $(drawingAreaElement);
@@ -21,9 +21,15 @@ wwp = {};
 		marginTop = parseInt($canvas.css('margin-top'), 10);
 		marginLeft = parseInt($canvas.css('margin-left'), 10);
 
-		$canvas.unbind('click');
+		$canvas.unbind('click'); // clean up any previous event listeners to allow multiple calling of this function
 		$canvas.on('click', function(event) {
-			wwp.drawLine(0, 0, event.pageX - $canvas.offset().left - borderLeftWidth - marginLeft, event.pageY - $canvas.offset().top - borderTopWidth - marginTop);
+			endX = event.pageX - $canvas.offset().left - borderLeftWidth - marginLeft;
+			endY = event.pageY - $canvas.offset().top - borderTopWidth - marginTop;
+			if (prevX) {
+				wwp.drawLine(prevX, prevY, endX, endY);
+			}
+			prevX = endX;
+			prevY = endY;
 		});
 
 //		var prevX, prevY, isDragging;

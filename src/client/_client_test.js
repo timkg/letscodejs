@@ -45,28 +45,35 @@
 			});
 			paper = wwp.initializeDrawingArea($canvas[0]); // re-init after border change
 
-			var pageX = 100;
-			var pageY = 100;
-			clickMouse($canvas, pageX, pageY);
+			var startX = 100;
+			var startY = 100;
+			var endX = 110;
+			var endY = 120;
+			clickMouse($canvas, startX, startY);
+			clickMouse($canvas, endX, endY);
 
-			var relativePosition = relativeOffset($canvas, pageX, pageY);
+			var relativeStartPosition = relativeOffset($canvas, startX, startY);
+			var relativeEndPosition = relativeOffset($canvas, endX, endY);
 
 			var elements = getElementsOnDrawingArea(paper);
 			expect(elements.length).to.equal(1);
-			expect(pathFor(elements[0])).to.equal('M0,0L' + relativePosition.x + ',' + relativePosition.y);
+			expect(pathFor(elements[0])).to.equal('M' + relativeStartPosition.x + ',' + relativeStartPosition.y + 'L' + relativeEndPosition.x + ',' + relativeEndPosition.y);
 		});
 
 		it('responds to mouse events', function() {
-			var pageX = 30;
-			var pageY = 30;
-			clickMouse($canvas, pageX, pageY);
+			var startX = 100;
+			var startY = 100;
+			var endX = 110;
+			var endY = 120;
+			clickMouse($canvas, startX, startY);
+			clickMouse($canvas, endX, endY);
+
+			var relativeStartPosition = relativeOffset($canvas, startX, startY);
+			var relativeEndPosition = relativeOffset($canvas, endX, endY);
 
 			var elements = getElementsOnDrawingArea(paper);
-
-			var relativePosition = relativeOffset($canvas, pageX, pageY);
-
 			expect(elements.length).to.equal(1);
-			expect(pathFor(elements[0])).to.equal('M0,0L' + relativePosition.x + ',' + relativePosition.y);
+			expect(pathFor(elements[0])).to.equal('M' + relativeStartPosition.x + ',' + relativeStartPosition.y + 'L' + relativeEndPosition.x + ',' + relativeEndPosition.y);
 		});
 
 		function relativeOffset($element, pageX, pageY) {
