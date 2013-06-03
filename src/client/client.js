@@ -4,14 +4,17 @@ wwp = {};
 (function() {
 	"use strict";
 
-	var paper;
+	var paper, $canvas;
 
 	wwp.initializeDrawingArea = function(drawingAreaElement) {
 		paper = new Raphael(drawingAreaElement);
-		return paper;
+		$canvas = $(drawingAreaElement);
+
+		$canvas.on('click', function(event) {
+			wwp.drawLine(0, 0, event.pageX - $canvas.offset().left, event.pageY - $canvas.offset().top);
+		});
 
 //		var prevX, prevY, isDragging;
-//		var $canvas = $(drawingAreaElement);
 //
 //		$(document).on('mousedown', function() {
 //			isDragging = true;
@@ -41,6 +44,8 @@ wwp = {};
 //			prevX = relativeX;
 //			prevY = relativeY;
 //		});
+
+		return paper;
 	};
 
 	wwp.drawLine = function(startX, startY, endX, endY) {

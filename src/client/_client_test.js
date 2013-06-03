@@ -4,25 +4,25 @@
 
 	describe('Drawing area', function() {
 
-		var drawingArea, paper;
+		var $canvas, paper;
 
 		var DRAWING_AREA_HEIGHT = 300;
 		var DRAWING_AREA_WIDTH = 600;
 
 		beforeEach(function() {
-			drawingArea = $('<div></div>')
+			$canvas = $('<div></div>')
 				.css({
 					height: DRAWING_AREA_HEIGHT
 					, width: DRAWING_AREA_WIDTH
 				});
 
-			$(document.body).append(drawingArea);
+			$(document.body).append($canvas);
 
-			paper = wwp.initializeDrawingArea(drawingArea[0]);
+			paper = wwp.initializeDrawingArea($canvas[0]);
 		});
 
 		afterEach(function() {
-			drawingArea.remove();
+			$canvas.remove();
 		});
 
 		it('should have the same dimensions as its enclosing div', function() {
@@ -36,6 +36,19 @@
 			var elements = getElementsOnDrawingArea(paper);
 			expect(elements.length).to.equal(1);
 			expect(pathFor(elements[0])).to.equal("M20,30L30,300");
+		});
+
+		it('responds to mouse events', function() {
+			var clickEvent = $.Event('click');
+			clickEvent.pageX = $canvas.offset().left + 30;
+			clickEvent.pageY = $canvas.offset().top + 30;
+
+			$canvas.trigger(clickEvent);
+
+			var elements = getElementsOnDrawingArea(paper);
+
+			expect(elements.length).to.equal(1);
+			expect(pathFor(elements[0])).to.equal('M0,0L30,30');
 		});
 
 		function getElementsOnDrawingArea(paper) {
