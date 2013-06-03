@@ -121,6 +121,7 @@
 			forin:true,
 			immed:true,
 			latedef:true,
+			laxcomma: true,
 			newcap:true,
 			noarg:true,
 			noempty:true,
