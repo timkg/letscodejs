@@ -38,6 +38,23 @@
 			expect(pathFor(elements[0])).to.equal("M20,30L30,300");
 		});
 
+		it("takes border of canvas into account", function() {
+			$canvas.css({
+				border: "10px solid black"
+				, margin: "5px"
+			});
+			paper = wwp.initializeDrawingArea($canvas[0]); // re-init after border change
+			var clickEvent = $.Event('click');
+			clickEvent.pageX = $canvas.offset().left + 30;
+			clickEvent.pageY = $canvas.offset().top + 30;
+
+			$canvas.trigger(clickEvent);
+
+			var elements = getElementsOnDrawingArea(paper);
+
+			expect(pathFor(elements[0])).to.equal('M0,0L30,30');
+		});
+
 		it('responds to mouse events', function() {
 			var clickEvent = $.Event('click');
 			clickEvent.pageX = $canvas.offset().left + 30;
