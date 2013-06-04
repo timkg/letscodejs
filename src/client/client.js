@@ -7,82 +7,32 @@ wwp = {};
 	var paper, $canvas;
 
 	wwp.initializeDrawingArea = function(drawingAreaElement) {
-		var prevX, prevY, endX, endY, isDragging, raphDragLine, dragStartX, dragStartY;
+		var lastX, lastY, isDragging, pos;
 
 		paper = new Raphael(drawingAreaElement);
 		$canvas = $(drawingAreaElement);
 
 		$canvas.off('click mousedown mouseup'); // clean up any previous event listeners to allow multiple calling of this function
-//		$canvas.on('click', function(event) {
-//			var relativePosition = wwp.elementPositionFromPagePosition($canvas, event.pageX, event.pageY);
-//			endX = relativePosition.x;
-//			endY = relativePosition.y;
-//			if (prevX) {
-//				wwp.drawLine(prevX, prevY, endX, endY);
-//			}
-//			prevX = endX;
-//			prevY = endY;
-//		});
+
 		$canvas.on('mousedown', function(event) {
 			isDragging = true;
-			var dragStart = wwp.elementPositionFromPagePosition($canvas, event.pageX, event.pageY);
-			dragStartX = dragStart.x;
-			dragStartY = dragStart.y;
-		});
-		$canvas.on('mousemove', function(event) {
-			if (raphDragLine) { raphDragLine.remove(); }
-			if (isDragging) {
-				var pos = wwp.elementPositionFromPagePosition($canvas, event.pageX, event.pageY);
-				raphDragLine = wwp.drawLine(dragStartX, dragStartY, pos.x, pos.y);
-			}
-		});
-		$canvas.on('mouseup', function(event) {
-			if (isDragging) {
-				var pos = wwp.elementPositionFromPagePosition($canvas, event.pageX, event.pageY);
-				wwp.drawLine(dragStartX, dragStartY, pos.x, pos.y);
-			}
-			isDragging = false;
-		});
-		// clear dragging line
-		$(document.body).on('mouseup', function() {
-			setTimeout(function() {
-				if (raphDragLine) { raphDragLine.remove(); }
-				isDragging = false;
-				dragStartX = null
-				dragStartY = null;
-			}, 0)
+			pos = wwp.elementPositionFromPagePosition($canvas, event.pageX, event.pageY);
+			lastX = pos.x;
+			lastY = pos.y;
 		});
 
-//		var prevX, prevY, isDragging;
-//
-//		$(document).on('mousedown', function() {
-//			isDragging = true;
-//		});
-//		$(document).on('mouseup', function() {
-//			isDragging = false;
-//		});
-//
-//		$canvas.on('mousemove', function(event) {
-//			// TODO in test - account for padding, border, margin
-//			var divPageX = $canvas.offset().left;
-//			var divPageY = $canvas.offset().top;
-//
-//			var relativeX = event.pageX - divPageX;
-//			var relativeY = event.pageY - divPageY;
-//
-//			if (!prevX) {
-//				prevX = relativeX;
-//				prevY = relativeY;
-//				return false; // only start drawing on second mousemove event
-//			}
-//
-//			if (isDragging) {
-//				wwp.drawLine(prevX, prevY, relativeX, relativeY);
-//			}
-//
-//			prevX = relativeX;
-//			prevY = relativeY;
-//		});
+		$canvas.on('mousemove', function(event) {
+			pos = wwp.elementPositionFromPagePosition($canvas, event.pageX, event.pageY);
+			if (isDragging) {
+				wwp.drawLine(lastX, lastY, pos.x, pos.y);
+			}
+			lastX = pos.x;
+			lastY = pos.y;
+		});
+
+		$(document.body).on('mouseup', function() {
+			isDragging = false;
+		});
 
 		return paper;
 	};
