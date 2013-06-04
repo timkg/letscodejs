@@ -51,7 +51,10 @@
 	desc('Client tests');
 	task('testClient', [], function() {
 		console.log('\n\nCLIENT TESTS');
-		sh('node node_modules/.bin/karma run', complete);
+		sh('node node_modules/.bin/karma run', function(stdout) {
+			console.log(stdout);
+			complete();
+		});
 	}, {async: true});
 
 	
@@ -136,7 +139,7 @@
 
 	function serverTestFiles() {
 		var files = new jake.FileList();
-		files.include('**/_*_test.js');
+		files.include('src/server/**/_*_test.js');
 		files.exclude('node_modules');
 		files.exclude('client');
 		return files;
