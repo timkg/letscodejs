@@ -91,39 +91,46 @@
 			expect(pathFor(elements[0])).to.eql(wwp.coordinateArrayToPath([20, 30, 30, 300]));
 		});
 
-		it('responds to mouse events', function() {
-			clickMouse($canvas, 100, 100);
-			clickMouse($canvas, 110, 120);
+//		it('responds to mouse events', function() {
+//			clickMouse($canvas, 100, 100);
+//			clickMouse($canvas, 110, 120);
+//
+//			var elements = getElementsOnDrawingArea(paper);
+//			expect(elements.length).to.equal(1);
+//			expect(pathFor(elements[0])).to.eql(wwp.coordinateArrayToPath([100, 100, 110, 120]));
+//		});
+//
+//		it('draws multiple segments', function() {
+//			paper = wwp.initializeDrawingArea($canvas[0]);
+//			clickMouse($canvas, 100, 100);
+//			clickMouse($canvas, 110, 120);
+//			clickMouse($canvas, 90, 90);
+//
+//			var elements = getElementsOnDrawingArea(paper);
+//			expect(elements.length).to.equal(2);
+//			expect(pathFor(elements[0])).to.eql(wwp.coordinateArrayToPath([100, 100, 110, 120]));
+//			expect(pathFor(elements[1])).to.eql(wwp.coordinateArrayToPath([110, 120, 90, 90]));
+//		});
+//
+//		it("takes border of canvas into account", function() {
+//			clickMouse($canvas, 100, 100);
+//			clickMouse($canvas, 110, 120);
+//
+//			var elements = getElementsOnDrawingArea(paper);
+//			expect(elements.length).to.equal(1);
+//			expect(pathFor(elements[0])).to.eql(wwp.coordinateArrayToPath([100, 100, 110, 120]));
+//		});
+
+		it("draws line segment upon drag", function() {
+			mouseDown($canvas, 20, 20);
+			mouseUp($canvas, 50, 50);
 
 			var elements = getElementsOnDrawingArea(paper);
 			expect(elements.length).to.equal(1);
-			expect(pathFor(elements[0])).to.eql(wwp.coordinateArrayToPath([100, 100, 110, 120]));
-		});
-
-		it('draws multiple segments', function() {
-			paper = wwp.initializeDrawingArea($canvas[0]);
-			clickMouse($canvas, 100, 100);
-			clickMouse($canvas, 110, 120);
-			clickMouse($canvas, 90, 90);
-
-			var elements = getElementsOnDrawingArea(paper);
-			expect(elements.length).to.equal(2);
-			expect(pathFor(elements[0])).to.eql(wwp.coordinateArrayToPath([100, 100, 110, 120]));
-			expect(pathFor(elements[1])).to.eql(wwp.coordinateArrayToPath([110, 120, 90, 90]));
-		});
-
-		it("takes border of canvas into account", function() {
-			clickMouse($canvas, 100, 100);
-			clickMouse($canvas, 110, 120);
-
-			var elements = getElementsOnDrawingArea(paper);
-			expect(elements.length).to.equal(1);
-			expect(pathFor(elements[0])).to.eql(wwp.coordinateArrayToPath([100, 100, 110, 120]));
+			expect(pathFor(elements[0])).to.eql(wwp.coordinateArrayToPath([20, 20, 50, 50]));
 		});
 
 		function pathFor(element) {
-//			var box = element.getBBox();
-//			return [box.x, box.y, box.x2, box.y2];
 			if (Raphael.vml) { return vmlPathFor(element); }
 			else if (Raphael.svg) { return svgPathFor(element); }
 			else { throw new Error("Unknown Raphael type"); }
@@ -169,6 +176,30 @@
 			clickEvent.pageY = pagePosition.y;
 			$element.trigger(clickEvent);
 		}
+
+		function mouseDown($element, elementX, elementY) {
+			var clickEvent = $.Event('mousedown');
+			var pagePosition = wwp.pagePositionFromElementPosition($element, elementX, elementY);
+			clickEvent.pageX = pagePosition.x;
+			clickEvent.pageY = pagePosition.y;
+			$element.trigger(clickEvent);
+		}
+
+		function mouseUp($element, elementX, elementY) {
+			var clickEvent = $.Event('mouseup');
+			var pagePosition = wwp.pagePositionFromElementPosition($element, elementX, elementY);
+			clickEvent.pageX = pagePosition.x;
+			clickEvent.pageY = pagePosition.y;
+			$element.trigger(clickEvent);
+		}
+
+//		function mouseUp($element, elementX, elementY) {
+//			var clickEvent = $.Event('mouseup');
+//			var pagePosition = wwp.pagePositionFromElementPosition($element, elementX, elementY);
+//			clickEvent.pageX = pagePosition.x;
+//			clickEvent.pageY = pagePosition.y;
+//			$element.trigger(clickEvent);
+//		}
 
 		function getElementsOnDrawingArea(paper) {
 			var elements = [];

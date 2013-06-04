@@ -7,21 +7,50 @@ wwp = {};
 	var paper, $canvas;
 
 	wwp.initializeDrawingArea = function(drawingAreaElement) {
-		var prevX, prevY, endX, endY, borderTopWidth, borderLeftWidth, marginTop, marginLeft;
+		var prevX, prevY, endX, endY, isDragging, raphDragLine, dragStartX, dragStartY;
 
 		paper = new Raphael(drawingAreaElement);
 		$canvas = $(drawingAreaElement);
 
-		$canvas.unbind('click'); // clean up any previous event listeners to allow multiple calling of this function
-		$canvas.on('click', function(event) {
-			var relativePosition = wwp.elementPositionFromPagePosition($canvas, event.pageX, event.pageY);
-			endX = relativePosition.x;
-			endY = relativePosition.y;
-			if (prevX) {
-				wwp.drawLine(prevX, prevY, endX, endY);
+		$canvas.off('click mousedown mouseup'); // clean up any previous event listeners to allow multiple calling of this function
+//		$canvas.on('click', function(event) {
+//			var relativePosition = wwp.elementPositionFromPagePosition($canvas, event.pageX, event.pageY);
+//			endX = relativePosition.x;
+//			endY = relativePosition.y;
+//			if (prevX) {
+//				wwp.drawLine(prevX, prevY, endX, endY);
+//			}
+//			prevX = endX;
+//			prevY = endY;
+//		});
+		$canvas.on('mousedown', function(event) {
+			isDragging = true;
+			var dragStart = wwp.elementPositionFromPagePosition($canvas, event.pageX, event.pageY);
+			dragStartX = dragStart.x;
+			dragStartY = dragStart.y;
+		});
+		$canvas.on('mousemove', function(event) {
+			if (raphDragLine) { raphDragLine.remove(); }
+			if (isDragging) {
+				var pos = wwp.elementPositionFromPagePosition($canvas, event.pageX, event.pageY);
+				raphDragLine = wwp.drawLine(dragStartX, dragStartY, pos.x, pos.y);
 			}
-			prevX = endX;
-			prevY = endY;
+		});
+		$canvas.on('mouseup', function(event) {
+			if (isDragging) {
+				var pos = wwp.elementPositionFromPagePosition($canvas, event.pageX, event.pageY);
+				wwp.drawLine(dragStartX, dragStartY, pos.x, pos.y);
+			}
+			isDragging = false;
+		});
+		// clear dragging line
+		$(document.body).on('mouseup', function() {
+			setTimeout(function() {
+				if (raphDragLine) { raphDragLine.remove(); }
+				isDragging = false;
+				dragStartX = null
+				dragStartY = null;
+			}, 0)
 		});
 
 //		var prevX, prevY, isDragging;
@@ -59,7 +88,7 @@ wwp = {};
 	};
 
 	wwp.drawLine = function(startX, startY, endX, endY) {
-		paper.path("M" + startX + "," + startY + "L" + endX + "," + endY);
+		return paper.path("M" + startX + "," + startY + "L" + endX + "," + endY);
 	};
 
 	/**
@@ -69,6 +98,7 @@ wwp = {};
 	 * @param pageY
 	 * @return {Object}
 	 */
+	// TODO - accept jQuery event object
 	wwp.elementPositionFromPagePosition = function($element, pageX, pageY) {
 		var relativeX, relativeY, contentOffset;
 		contentOffset = wwp.contentOffset($element);
@@ -117,6 +147,6 @@ wwp = {};
 	 */
 	wwp.coordinateArrayToPath = function(coordinates) {
 		return 'M' + coordinates[0] + ',' + coordinates[1] + 'L' + coordinates[2] + ',' + coordinates[3];
-	}
+	};
 
 }());
