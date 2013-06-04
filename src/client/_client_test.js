@@ -35,57 +35,46 @@
 
 			var elements = getElementsOnDrawingArea(paper);
 			expect(elements.length).to.equal(1);
-			expect(pathFor(elements[0])).to.equal("M20,30L30,300");
+			expect(pathFor(elements[0])).to.eql([20, 30, 30, 300]);
 		});
 
 		it("takes border of canvas into account", function() {
 			$canvas.css({
-				border:"10px solid black"
-				, margin:"5px"
+				border: "10px solid black"
+				, margin: "5px"
 			});
 			paper = wwp.initializeDrawingArea($canvas[0]); // re-init after border change
 
-			var startX = 100;
-			var startY = 100;
-			var endX = 110;
-			var endY = 120;
-			clickMouse($canvas, startX, startY);
-			clickMouse($canvas, endX, endY);
-
-			var relativeStartPosition = wwp.relativeOffset($canvas, startX, startY);
-			var relativeEndPosition = wwp.relativeOffset($canvas, endX, endY);
+			var relativeStartPosition = clickMouse($canvas, 100, 100);
+			var relativeEndPosition = clickMouse($canvas, 110, 120);
 
 			var elements = getElementsOnDrawingArea(paper);
 			expect(elements.length).to.equal(1);
-			expect(pathFor(elements[0])).to.equal('M' + relativeStartPosition.x + ',' + relativeStartPosition.y + 'L' + relativeEndPosition.x + ',' + relativeEndPosition.y);
+			expect(pathFor(elements[0])).to.eql([relativeStartPosition.x, relativeStartPosition.y, relativeEndPosition.x, relativeEndPosition.y]);
 		});
 
 		it('responds to mouse events', function() {
-			var startX = 100;
-			var startY = 100;
-			var centerX = 110;
-			var centerY = 120;
-			var endX = 140;
-			var endY = 150;
-			clickMouse($canvas, startX, startY);
-			clickMouse($canvas, centerX, centerY);
-			clickMouse($canvas, endX, endY);
-
-			var relativeStartPosition = wwp.relativeOffset($canvas, startX, startY);
-			var relativeCenterPosition = wwp.relativeOffset($canvas, centerX, centerY);
-			var relativeEndPosition = wwp.relativeOffset($canvas, endX, endY);
+			var relativeStartPosition = clickMouse($canvas, 100, 100);
+			var relativeCenterPosition = clickMouse($canvas, 110, 120);
+			var relativeEndPosition = clickMouse($canvas, 140, 150);
 
 			var elements = getElementsOnDrawingArea(paper);
 			expect(elements.length).to.equal(2);
-			expect(pathFor(elements[0])).to.equal('M' + relativeStartPosition.x + ',' + relativeStartPosition.y + 'L' + relativeCenterPosition.x + ',' + relativeCenterPosition.y);
-			expect(pathFor(elements[1])).to.equal('M' + relativeCenterPosition.x + ',' + relativeCenterPosition.y + 'L' + relativeEndPosition.x + ',' + relativeEndPosition.y);
+			expect(pathFor(elements[0])).to.eql([relativeStartPosition.x, relativeStartPosition.y, relativeCenterPosition.x, relativeCenterPosition.y]);
+			expect(pathFor(elements[1])).to.eql([relativeCenterPosition.x, relativeCenterPosition.y, relativeEndPosition.x, relativeEndPosition.y]);
 		});
+
+		function pathFor(element) {
+			var box = element.getBBox();
+			return [box.x, box.y, box.x2, box.y2];
+		}
 
 		function clickMouse($element, pageX, pageY) {
 			var clickEvent = $.Event('click');
 			clickEvent.pageX = pageX;
 			clickEvent.pageY = pageY;
 			$element.trigger(clickEvent);
+			return wwp.relativeOffset($element, pageX, pageY);
 		}
 
 		function getElementsOnDrawingArea(paper) {
@@ -94,11 +83,6 @@
 				elements.push(element);
 			});
 			return elements;
-		}
-
-		function pathFor(element) {
-			var box = element.getBBox();
-			return "M" + box.x + "," + box.y + "L" + box.x2 + "," + box.y2;
 		}
 
 	});
