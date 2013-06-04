@@ -101,6 +101,25 @@
 			expect(pathFor(elements[0])).to.eql(wwp.coordinateArrayToPath([20, 20, 30, 40]));
 		});
 
+		it("does not draw line segment when mouse is not down", function() {
+			mouseMove($canvas, 30, 40);
+			mouseUp($canvas, 30, 40);
+
+			var elements = getElementsOnDrawingArea(paper);
+			expect(elements.length).to.equal(0);
+		});
+
+		it("stops to draw line segment when mouse is up", function() {
+			mouseDown($canvas, 20, 20);
+			mouseMove($canvas, 30, 40);
+			mouseUp($canvas, 30, 40);
+			mouseMove($canvas, 35, 45);
+
+			var elements = getElementsOnDrawingArea(paper);
+			expect(elements.length).to.equal(1);
+			expect(pathFor(elements[0])).to.eql(wwp.coordinateArrayToPath([20, 20, 30, 40]));
+		});
+
 	});
 
 
