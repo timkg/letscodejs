@@ -52,8 +52,8 @@
 			clickMouse($canvas, startX, startY);
 			clickMouse($canvas, endX, endY);
 
-			var relativeStartPosition = relativeOffset($canvas, startX, startY);
-			var relativeEndPosition = relativeOffset($canvas, endX, endY);
+			var relativeStartPosition = wwp.relativeOffset($canvas, startX, startY);
+			var relativeEndPosition = wwp.relativeOffset($canvas, endX, endY);
 
 			var elements = getElementsOnDrawingArea(paper);
 			expect(elements.length).to.equal(1);
@@ -63,29 +63,23 @@
 		it('responds to mouse events', function() {
 			var startX = 100;
 			var startY = 100;
-			var endX = 110;
-			var endY = 120;
+			var centerX = 110;
+			var centerY = 120;
+			var endX = 140;
+			var endY = 150;
 			clickMouse($canvas, startX, startY);
+			clickMouse($canvas, centerX, centerY);
 			clickMouse($canvas, endX, endY);
 
-			var relativeStartPosition = relativeOffset($canvas, startX, startY);
-			var relativeEndPosition = relativeOffset($canvas, endX, endY);
+			var relativeStartPosition = wwp.relativeOffset($canvas, startX, startY);
+			var relativeCenterPosition = wwp.relativeOffset($canvas, centerX, centerY);
+			var relativeEndPosition = wwp.relativeOffset($canvas, endX, endY);
 
 			var elements = getElementsOnDrawingArea(paper);
-			expect(elements.length).to.equal(1);
-			expect(pathFor(elements[0])).to.equal('M' + relativeStartPosition.x + ',' + relativeStartPosition.y + 'L' + relativeEndPosition.x + ',' + relativeEndPosition.y);
+			expect(elements.length).to.equal(2);
+			expect(pathFor(elements[0])).to.equal('M' + relativeStartPosition.x + ',' + relativeStartPosition.y + 'L' + relativeCenterPosition.x + ',' + relativeCenterPosition.y);
+			expect(pathFor(elements[1])).to.equal('M' + relativeCenterPosition.x + ',' + relativeCenterPosition.y + 'L' + relativeEndPosition.x + ',' + relativeEndPosition.y);
 		});
-
-		function relativeOffset($element, pageX, pageY) {
-			var borderLeftWidth = parseInt($element.css('border-left-width'), 10);
-			var marginLeft = parseInt($element.css('margin-left'), 10);
-			var borderTopWidth = parseInt($element.css('border-top-width'), 10);
-			var marginTop = parseInt($element.css('margin-top'), 10);
-
-			var relativeX = pageX - ($element.offset().left + borderLeftWidth + marginLeft);
-			var relativeY = pageY - ($element.offset().top + borderTopWidth + marginTop);
-			return {x: relativeX, y: relativeY};
-		}
 
 		function clickMouse($element, pageX, pageY) {
 			var clickEvent = $.Event('click');

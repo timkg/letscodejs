@@ -12,19 +12,11 @@ wwp = {};
 		paper = new Raphael(drawingAreaElement);
 		$canvas = $(drawingAreaElement);
 
-		// get values used to normalize position of click event in relation to target border and margin
-		// NOTE - calculating these here means faster performance, but client-side alterations
-		// of the drawing container require new call to this function to keep dimensions in sync
-		// TODO - remove duplication with _client_test.js, function relativeOffset()
-		borderTopWidth = parseInt($canvas.css('border-top-width'), 10);
-		borderLeftWidth = parseInt($canvas.css('border-left-width'), 10);
-		marginTop = parseInt($canvas.css('margin-top'), 10);
-		marginLeft = parseInt($canvas.css('margin-left'), 10);
-
 		$canvas.unbind('click'); // clean up any previous event listeners to allow multiple calling of this function
 		$canvas.on('click', function(event) {
-			endX = event.pageX - $canvas.offset().left - borderLeftWidth - marginLeft;
-			endY = event.pageY - $canvas.offset().top - borderTopWidth - marginTop;
+			var relativePosition = wwp.relativeOffset($canvas, event.pageX, event.pageY);
+			endX = relativePosition.x;
+			endY = relativePosition.y;
 			if (prevX) {
 				wwp.drawLine(prevX, prevY, endX, endY);
 			}
@@ -68,6 +60,19 @@ wwp = {};
 
 	wwp.drawLine = function(startX, startY, endX, endY) {
 		paper.path("M" + startX + "," + startY + "L" + endX + "," + endY);
+	};
+
+	wwp.relativeOffset = function($element, pageX, pageY) {
+		var borderLeftWidth, marginLeft, borderTopWidth, marginTop, relativeX, relativeY;
+
+		borderLeftWidth = parseInt($element.css('border-left-width'), 10);
+		marginLeft = parseInt($element.css('margin-left'), 10);
+		borderTopWidth = parseInt($element.css('border-top-width'), 10);
+		marginTop = parseInt($element.css('margin-top'), 10);
+
+		relativeX = pageX - ($element.offset().left + borderLeftWidth + marginLeft);
+		relativeY = pageY - ($element.offset().top + borderTopWidth + marginTop);
+		return {x: relativeX, y: relativeY};
 	};
 
 }());
