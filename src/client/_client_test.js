@@ -45,23 +45,23 @@
 			});
 			paper = wwp.initializeDrawingArea($canvas[0]); // re-init after border change
 
-			var relativeStartPosition = clickMouse($canvas, 100, 100);
-			var relativeEndPosition = clickMouse($canvas, 110, 120);
+			clickMouse($canvas, 100, 100);
+			clickMouse($canvas, 110, 120);
 
 			var elements = getElementsOnDrawingArea(paper);
 			expect(elements.length).to.equal(1);
-			expect(pathFor(elements[0])).to.eql([relativeStartPosition.x, relativeStartPosition.y, relativeEndPosition.x, relativeEndPosition.y]);
+			expect(pathFor(elements[0])).to.eql([100, 100, 110, 120]);
 		});
 
 		it('responds to mouse events', function() {
-			var relativeStartPosition = clickMouse($canvas, 100, 100);
-			var relativeCenterPosition = clickMouse($canvas, 110, 120);
-			var relativeEndPosition = clickMouse($canvas, 140, 150);
+			clickMouse($canvas, 100, 100);
+			clickMouse($canvas, 110, 120);
+			clickMouse($canvas, 140, 150);
 
 			var elements = getElementsOnDrawingArea(paper);
 			expect(elements.length).to.equal(2);
-			expect(pathFor(elements[0])).to.eql([relativeStartPosition.x, relativeStartPosition.y, relativeCenterPosition.x, relativeCenterPosition.y]);
-			expect(pathFor(elements[1])).to.eql([relativeCenterPosition.x, relativeCenterPosition.y, relativeEndPosition.x, relativeEndPosition.y]);
+			expect(pathFor(elements[0])).to.eql([100, 100, 110, 120]);
+			expect(pathFor(elements[1])).to.eql([110, 120, 140, 150]);
 		});
 
 		function pathFor(element) {
@@ -69,12 +69,12 @@
 			return [box.x, box.y, box.x2, box.y2];
 		}
 
-		function clickMouse($element, pageX, pageY) {
+		function clickMouse($element, elementX, elementY) {
 			var clickEvent = $.Event('click');
-			clickEvent.pageX = pageX;
-			clickEvent.pageY = pageY;
+			var pagePosition = wwp.pagePositionFromElementPosition($element, elementX, elementY);
+			clickEvent.pageX = pagePosition.x;
+			clickEvent.pageY = pagePosition.y;
 			$element.trigger(clickEvent);
-			return wwp.relativeOffset($element, pageX, pageY);
 		}
 
 		function getElementsOnDrawingArea(paper) {
