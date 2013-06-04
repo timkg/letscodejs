@@ -7,7 +7,7 @@ wwp = {};
 	var paper, $canvas;
 
 	wwp.initializeDrawingArea = function(drawingAreaElement) {
-		var lastX, lastY, isDragging, pos;
+		var startPos, currentPos;
 
 		paper = new Raphael(drawingAreaElement);
 		$canvas = $(drawingAreaElement);
@@ -15,23 +15,21 @@ wwp = {};
 		$canvas.off('click mousedown mouseup'); // clean up any previous event listeners to allow multiple calling of this function
 
 		$canvas.on('mousedown', function(event) {
-			isDragging = true;
-			pos = wwp.elementPositionFromPagePosition($canvas, event.pageX, event.pageY);
-			lastX = pos.x;
-			lastY = pos.y;
+			startPos = wwp.elementPositionFromPagePosition($canvas, event.pageX, event.pageY);
 		});
 
 		$canvas.on('mousemove', function(event) {
-			pos = wwp.elementPositionFromPagePosition($canvas, event.pageX, event.pageY);
-			if (isDragging) {
-				wwp.drawLine(lastX, lastY, pos.x, pos.y);
+			if (!startPos) { return; }
+
+			currentPos = wwp.elementPositionFromPagePosition($canvas, event.pageX, event.pageY);
+			if (startPos) {
+				wwp.drawLine(startPos.x, startPos.y, currentPos.x, currentPos.y);
 			}
-			lastX = pos.x;
-			lastY = pos.y;
+			startPos = currentPos;
 		});
 
 		$(document.body).on('mouseup', function() {
-			isDragging = false;
+			startPos = null;
 		});
 
 		return paper;
