@@ -95,19 +95,19 @@ wwp = {};
 	};
 
 	/**
-	 * Calculates px between element topleft border-box origin and topleft content-box origin
+	 * Calculates px between element topleft border edge and topleft content egde
 	 * @param $element
 	 * @return {Object}
 	 */
 	wwp.contentOffset = function($element) {
-		var borderLeftWidth, marginLeft, borderTopWidth, marginTop;
+		var borderLeftWidth, paddingLeft, borderTopWidth, paddingTop;
 
 		borderLeftWidth = parseInt($element.css('border-left-width'), 10);
-		marginLeft = parseInt($element.css('margin-left'), 10);
+		paddingLeft = parseInt($element.css('padding-left'), 10);
 		borderTopWidth = parseInt($element.css('border-top-width'), 10);
-		marginTop = parseInt($element.css('margin-top'), 10);
+		paddingTop = parseInt($element.css('padding-top'), 10);
 
-		return {x: borderLeftWidth + marginLeft, y: borderTopWidth + marginTop};
+		return {x: borderLeftWidth + paddingLeft, y: borderTopWidth + paddingTop};
 	};
 
 }());

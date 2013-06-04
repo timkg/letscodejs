@@ -2,6 +2,53 @@
 	/*global describe, it, expect, afterEach, beforeEach, wwp, $, Raphael, dump, console */
 	"use strict";
 
+	describe('wwp DOM helper methods', function() {
+
+		var $elm;
+
+		beforeEach(function() {
+			$elm = $('<div></div>')
+				.css({
+					height: '200px'
+					, width: '200px'
+					, margin: '20px'
+					, border: '20px solid black'
+					, padding: '15px'
+				});
+
+			$(document.body)
+				.css({
+					margin: 0
+					, padding: 0
+					, border: 0
+				})
+				.append($elm);
+		});
+
+		afterEach(function() {
+			$elm.remove();
+		});
+
+		it('calculates distance between topleft border edge and topleft content edge', function() {
+			var distance = wwp.contentOffset($elm);
+			// border: '20px solid black' + padding: '15px'
+			expect(distance).to.eql({x: 35, y: 35});
+		});
+
+		it('calculates coordinates on DOM element from global page position', function() {
+			var pos = wwp.elementPositionFromPagePosition($elm, 100, 100);
+			// border: '20px solid black' + padding: '15px' + margin: '20px'
+			expect(pos).to.eql({x: 45, y: 45});
+		});
+
+		it('calculates page coordinates from coordinates on DOM element', function() {
+			var pos = wwp.pagePositionFromElementPosition($elm, 100, 100);
+			// border: '20px solid black' + padding: '15px' + margin: '20px'
+			expect(pos).to.eql({x: 155, y: 155});
+		});
+
+	});
+
 	describe('Drawing area', function() {
 
 		var $canvas, paper;
