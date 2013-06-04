@@ -120,6 +120,20 @@
 			expect(pathFor(elements[0])).to.eql(wwp.coordinateArrayToPath([20, 20, 30, 40]));
 		});
 
+		it("draws multiple segments", function() {
+			mouseDown($canvas, 20, 20);
+			mouseMove($canvas, 30, 40);
+			mouseMove($canvas, 40, 10);
+			mouseMove($canvas, 45, 100);
+			mouseUp($canvas, 45, 100);
+
+			var elements = getElementsOnDrawingArea(paper);
+			expect(elements.length).to.equal(3);
+			expect(pathFor(elements[0])).to.eql(wwp.coordinateArrayToPath([20, 20, 30, 40]));
+			expect(pathFor(elements[1])).to.eql(wwp.coordinateArrayToPath([30, 40, 40, 10]));
+			expect(pathFor(elements[2])).to.eql(wwp.coordinateArrayToPath([40, 10, 45, 100]));
+		});
+
 	});
 
 
