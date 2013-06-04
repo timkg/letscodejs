@@ -110,4 +110,13 @@ wwp = {};
 		return {x: borderLeftWidth + paddingLeft, y: borderTopWidth + paddingTop};
 	};
 
+	/**
+	 * given an array with 4 coordinates, returns SVG path string (MX,YLX,Y)
+	 * @param coordinates
+	 * @return {String}
+	 */
+	wwp.coordinateArrayToPath = function(coordinates) {
+		return 'M' + coordinates[0] + ',' + coordinates[1] + 'L' + coordinates[2] + ',' + coordinates[3];
+	}
+
 }());

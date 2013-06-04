@@ -2,7 +2,7 @@
 	/*global describe, it, expect, afterEach, beforeEach, wwp, $, Raphael, dump, console */
 	"use strict";
 
-	describe('wwp DOM helper methods', function() {
+	describe('wwp helper methods', function() {
 
 		var $elm;
 
@@ -47,6 +47,11 @@
 			expect(pos).to.eql({x: 155, y: 155});
 		});
 
+		it('transforms coordinate array into SVG path string', function() {
+			var coordinates = [100, 100, 120, 130];
+			expect(wwp.coordinateArrayToPath(coordinates)).to.equal('M100,100L120,130');
+		});
+
 	});
 
 	describe('Drawing area', function() {
@@ -61,6 +66,7 @@
 				.css({
 					height: DRAWING_AREA_HEIGHT
 					, width: DRAWING_AREA_WIDTH
+					, border: "0px solid black" // IE8 complains if we don't set a border
 				});
 
 			$(document.body).append($canvas);
@@ -82,38 +88,78 @@
 
 			var elements = getElementsOnDrawingArea(paper);
 			expect(elements.length).to.equal(1);
-			expect(pathFor(elements[0])).to.eql([20, 30, 30, 300]);
-		});
-
-		it("takes border of canvas into account", function() {
-			$canvas.css({
-				border: "10px solid black"
-				, margin: "5px"
-			});
-			paper = wwp.initializeDrawingArea($canvas[0]); // re-init after border change
-
-			clickMouse($canvas, 100, 100);
-			clickMouse($canvas, 110, 120);
-
-			var elements = getElementsOnDrawingArea(paper);
-			expect(elements.length).to.equal(1);
-			expect(pathFor(elements[0])).to.eql([100, 100, 110, 120]);
+			expect(pathFor(elements[0])).to.eql(wwp.coordinateArrayToPath([20, 30, 30, 300]));
 		});
 
 		it('responds to mouse events', function() {
 			clickMouse($canvas, 100, 100);
 			clickMouse($canvas, 110, 120);
-			clickMouse($canvas, 140, 150);
+
+			var elements = getElementsOnDrawingArea(paper);
+			expect(elements.length).to.equal(1);
+			expect(pathFor(elements[0])).to.eql(wwp.coordinateArrayToPath([100, 100, 110, 120]));
+		});
+
+		it('draws multiple segments', function() {
+			paper = wwp.initializeDrawingArea($canvas[0]);
+			clickMouse($canvas, 100, 100);
+			clickMouse($canvas, 110, 120);
+			clickMouse($canvas, 90, 90);
 
 			var elements = getElementsOnDrawingArea(paper);
 			expect(elements.length).to.equal(2);
-			expect(pathFor(elements[0])).to.eql([100, 100, 110, 120]);
-			expect(pathFor(elements[1])).to.eql([110, 120, 140, 150]);
+			expect(pathFor(elements[0])).to.eql(wwp.coordinateArrayToPath([100, 100, 110, 120]));
+			expect(pathFor(elements[1])).to.eql(wwp.coordinateArrayToPath([110, 120, 90, 90]));
+		});
+
+		it("takes border of canvas into account", function() {
+			clickMouse($canvas, 100, 100);
+			clickMouse($canvas, 110, 120);
+
+			var elements = getElementsOnDrawingArea(paper);
+			expect(elements.length).to.equal(1);
+			expect(pathFor(elements[0])).to.eql(wwp.coordinateArrayToPath([100, 100, 110, 120]));
 		});
 
 		function pathFor(element) {
-			var box = element.getBBox();
-			return [box.x, box.y, box.x2, box.y2];
+//			var box = element.getBBox();
+//			return [box.x, box.y, box.x2, box.y2];
+			if (Raphael.vml) { return vmlPathFor(element); }
+			else if (Raphael.svg) { return svgPathFor(element); }
+			else { throw new Error("Unknown Raphael type"); }
+		}
+
+		function svgPathFor(element) {
+			var path = element.node.attributes.d.value;
+			if (path.indexOf(",") !== -1) {
+				// We're in Firefox, Safari, Chrome, which uses format "M20,30L30,300"
+				return path;
+			}
+			else {
+				// We're in IE9, which uses format "M 20 30 L 30 300"
+				var ie9PathRegex = /M (\d+) (\d+) L (\d+) (\d+)/;
+				var ie9 = path.match(ie9PathRegex);
+
+				return "M" + ie9[1] + "," + ie9[2] + "L" + ie9[3] + "," + ie9[4];
+			}
+			return path;
+		}
+
+		function vmlPathFor(element) {
+			// We're in IE 8, which uses format "m432000,648000 l648000,67456800 e"
+			var VML_MAGIC_NUMBER = 21600;
+
+			var path = element.node.path.value;
+
+			var ie8PathRegex = /m(\d+),(\d+) l(\d+),(\d+) e/;
+			var ie8 = path.match(ie8PathRegex);
+
+			var startX = ie8[1] / VML_MAGIC_NUMBER;
+			var startY = ie8[2] / VML_MAGIC_NUMBER;
+			var endX = ie8[3] / VML_MAGIC_NUMBER;
+			var endY = ie8[4] / VML_MAGIC_NUMBER;
+
+			return wwp.coordinateArrayToPath([startX, startY, endX, endY]);
 		}
 
 		function clickMouse($element, elementX, elementY) {
