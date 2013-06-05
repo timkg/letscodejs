@@ -6,35 +6,57 @@ wwp = {};
 
 	var paper, $canvas;
 
+	/**
+	 *
+	 * @param drawingAreaElement
+	 * @return {Raphael}
+	 */
 	wwp.initializeDrawingArea = function(drawingAreaElement) {
-		var startPos, currentPos;
 
 		paper = new Raphael(drawingAreaElement);
 		$canvas = $(drawingAreaElement);
 
-		$canvas.off('click mousedown mouseup'); // clean up any previous event listeners to allow multiple calling of this function
+		handleMouseEvents($canvas);
+		return paper;
+	};
 
-		$canvas.on('mousedown', function(event) {
-			startPos = wwp.elementPositionFromPagePosition($canvas, event.pageX, event.pageY);
+	/**
+	 *
+	 * @param $elm
+	 */
+	function handleMouseEvents($elm) {
+		var startPos, currentPos;
+		$elm.off('click mousedown mouseup'); // clean up any previous event listeners to allow multiple calling of this function
+
+		$elm.on('mousedown', function (event) {
+			startPos = wwp.elementPositionFromPagePosition($elm, event.pageX, event.pageY);
 		});
 
-		$canvas.on('mousemove', function(event) {
-			if (!startPos) { return; }
+		$elm.on('mousemove', function (event) {
+			if (!startPos) {
+				return;
+			}
 
-			currentPos = wwp.elementPositionFromPagePosition($canvas, event.pageX, event.pageY);
+			currentPos = wwp.elementPositionFromPagePosition($elm, event.pageX, event.pageY);
 			if (startPos) {
 				wwp.drawLine(startPos.x, startPos.y, currentPos.x, currentPos.y);
 			}
 			startPos = currentPos;
 		});
 
-		$(document.body).on('mouseup', function() {
+		$(document.body).on('mouseup', function () {
 			startPos = null;
 		});
+	}
 
-		return paper;
-	};
-
+	/**
+	 *
+	 * @param startX
+	 * @param startY
+	 * @param endX
+	 * @param endY
+	 * @return {*|Array}
+	 */
 	wwp.drawLine = function(startX, startY, endX, endY) {
 		return paper.path("M" + startX + "," + startY + "L" + endX + "," + endY);
 	};
