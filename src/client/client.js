@@ -32,6 +32,10 @@ wwp = {};
 			startPos = wwp.elementPositionFromPagePosition($elm, event.pageX, event.pageY);
 		});
 
+		$elm.on('mouseleave', function (event) {
+			startPos = null;
+		});
+
 		$elm.on('mousemove', function (event) {
 			if (!startPos) {
 				return;
@@ -117,6 +121,23 @@ wwp = {};
 	 */
 	wwp.coordinateArrayToPath = function(coordinates) {
 		return 'M' + coordinates[0] + ',' + coordinates[1] + 'L' + coordinates[2] + ',' + coordinates[3];
+	};
+
+	/**
+	 * given an SVG path string (MX,YLX,Y), returns array with 4 coordinates
+	 * @param coordinates
+	 * @return {String}
+	 */
+	wwp.svgPathToCoordinateArray = function(svgPath) {
+		svgPath = svgPath.substr(1); // get rid of 'M'
+		var parts = svgPath.split('L'), coordinates = {};
+		coordinates.start = parts[0];
+		coordinates.end = parts[1];
+
+		coordinates.start = coordinates.start.split(',');
+		coordinates.end = coordinates.end.split(',');
+
+		return [coordinates.start[0], coordinates.start[1], coordinates.end[0], coordinates.end[1]];
 	};
 
 }());

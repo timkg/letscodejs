@@ -83,12 +83,12 @@
 			expect(paper.width).to.equal(DRAWING_AREA_WIDTH);
 		});
 
-		it('should draw a line', function() {
+		it('should expose a method to programmatically draw a line', function() {
 			wwp.drawLine(20, 30, 30, 300);
 
 			var elements = getElementsOnDrawingArea(paper);
 			expect(elements.length).to.equal(1);
-			expect(pathFor(elements[0])).to.eql(wwp.coordinateArrayToPath([20, 30, 30, 300]));
+			expect(pathFor(elements[0])).to.eql([20, 30, 30, 300]);
 		});
 
 		it("draws line segment upon drag", function() {
@@ -98,7 +98,7 @@
 
 			var elements = getElementsOnDrawingArea(paper);
 			expect(elements.length).to.equal(1);
-			expect(pathFor(elements[0])).to.eql(wwp.coordinateArrayToPath([20, 20, 30, 40]));
+			expect(pathFor(elements[0])).to.eql([20, 20, 30, 40]);
 		});
 
 		it("does not draw line segment when mouse is not down", function() {
@@ -117,7 +117,30 @@
 
 			var elements = getElementsOnDrawingArea(paper);
 			expect(elements.length).to.equal(1);
-			expect(pathFor(elements[0])).to.eql(wwp.coordinateArrayToPath([20, 20, 30, 40]));
+			expect(pathFor(elements[0])).to.eql([20, 20, 30, 40]);
+		});
+
+		it("does not draw line segment when mouse leaves drawing area", function() {
+			mouseDown($canvas, 20, 20);
+			mouseLeave($canvas, 1000, 40);
+			mouseMove($canvas, 35, 45);
+			mouseMove($canvas, 10, 100);
+			mouseUp($canvas, 35, 45);
+
+			var elements = getElementsOnDrawingArea(paper);
+			expect(elements.length).to.equal(0);
+		});
+
+		it("stops to draw more line segments when mouse leaves drawing area", function() {
+			mouseDown($canvas, 20, 20);
+			mouseMove($canvas, 35, 45);
+			mouseLeave($canvas, 1000, 40);
+			mouseMove($canvas, 10, 100);
+			mouseUp($canvas, 35, 45);
+
+			var elements = getElementsOnDrawingArea(paper);
+			expect(elements.length).to.equal(1);
+			expect(pathFor(elements[0])).to.eql([20, 20, 35, 45]);
 		});
 
 		it("draws multiple segments", function() {
@@ -129,9 +152,9 @@
 
 			var elements = getElementsOnDrawingArea(paper);
 			expect(elements.length).to.equal(3);
-			expect(pathFor(elements[0])).to.eql(wwp.coordinateArrayToPath([20, 20, 30, 40]));
-			expect(pathFor(elements[1])).to.eql(wwp.coordinateArrayToPath([30, 40, 40, 10]));
-			expect(pathFor(elements[2])).to.eql(wwp.coordinateArrayToPath([40, 10, 45, 100]));
+			expect(pathFor(elements[0])).to.eql([20, 20, 30, 40]);
+			expect(pathFor(elements[1])).to.eql([30, 40, 40, 10]);
+			expect(pathFor(elements[2])).to.eql([40, 10, 45, 100]);
 		});
 
 	});
@@ -143,8 +166,12 @@
 	 */
 
 	function pathFor(element) {
-		if (Raphael.vml) { return vmlPathFor(element); }
-		else if (Raphael.svg) { return svgPathFor(element); }
+		if (Raphael.vml) {
+			return vmlPathFor(element);
+		}
+		else if (Raphael.svg) {
+			return svgPathFor(element);
+		}
 		else { throw new Error("Unknown Raphael type"); }
 	}
 
@@ -152,14 +179,14 @@
 		var path = element.node.attributes.d.value;
 		if (path.indexOf(",") !== -1) {
 			// We're in Firefox, Safari, Chrome, which uses format "M20,30L30,300"
-			return path;
+			return wwp.svgPathToCoordinateArray(path);
 		}
 		else {
 			// We're in IE9, which uses format "M 20 30 L 30 300"
 			var ie9PathRegex = /M (\d+) (\d+) L (\d+) (\d+)/;
 			var ie9 = path.match(ie9PathRegex);
 
-			return "M" + ie9[1] + "," + ie9[2] + "L" + ie9[3] + "," + ie9[4];
+			return [ie9[1], ie9[2], ie9[3], ie9[4]];
 		}
 		return path;
 	}
@@ -178,7 +205,7 @@
 		var endX = ie8[3] / VML_MAGIC_NUMBER;
 		var endY = ie8[4] / VML_MAGIC_NUMBER;
 
-		return wwp.coordinateArrayToPath([startX, startY, endX, endY]);
+		return [startX, startY, endX, endY];
 	}
 
 	function mouseDown($element, elementX, elementY) {
@@ -191,6 +218,10 @@
 
 	function mouseMove($element, elementX, elementY) {
 		mouseEvent('mousemove', $element, elementX, elementY);
+	}
+
+	function mouseLeave($element, elementX, elementY) {
+		mouseEvent('mouseleave', $element, elementX, elementY);
 	}
 
 	function mouseEvent(type, $element, elementX, elementY) {
