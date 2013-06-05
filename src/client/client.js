@@ -17,11 +17,12 @@ wwp = {};
 		$canvas = $(drawingAreaElement);
 
 		handleMouseEvents($canvas);
+		handleTouchEvents($canvas);
 		return paper;
 	};
 
 	/**
-	 *
+	 * Handles mouse interaction with the drawing area
 	 * @param $elm
 	 */
 	function handleMouseEvents($elm) {
@@ -52,6 +53,36 @@ wwp = {};
 		$(document.body).on('mouseup', function () {
 			startPos = null;
 		});
+	}
+
+	/**
+	 * Handle touch interaction with the drawing area
+	 * @param $elm
+	 */
+	function handleTouchEvents($elm) {
+		var startPos, currentPos;
+
+		$elm[0].addEventListener('touchstart', function (event) {
+			event.preventDefault();
+			startPos = wwp.elementPositionFromPagePosition($elm, event.pageX, event.pageY);
+			event.preventDefault(); // prevent text from being selected when draw leaves area
+		}, false);
+
+		$elm[0].addEventListener('touchend', function (event) {
+			startPos = null;
+		}, false);
+
+		$elm[0].addEventListener('touchmove', function (event) {
+			if (!startPos) {
+				return;
+			}
+
+			currentPos = wwp.elementPositionFromPagePosition($elm, event.pageX, event.pageY);
+			if (startPos) {
+				wwp.drawLine(startPos.x, startPos.y, currentPos.x, currentPos.y);
+			}
+			startPos = currentPos;
+		}, false);
 	}
 
 	/**
