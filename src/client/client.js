@@ -30,6 +30,7 @@ wwp = {};
 
 		$elm.on('mousedown', function (event) {
 			startPos = wwp.elementPositionFromPagePosition($elm, event.pageX, event.pageY);
+			event.preventDefault(); // prevent text from being selected when draw leaves area
 		});
 
 		$elm.on('mouseleave', function (event) {
