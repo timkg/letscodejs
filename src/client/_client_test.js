@@ -94,8 +94,6 @@
 
 	describe('Mouse events', function() {
 
-		if (supportsTouch()) { return; }
-
 		beforeEach(function() {
 			$canvas = $('<div></div>')
 				.css({
@@ -178,6 +176,25 @@
 			expect(pathFor(elements[1])).to.eql([30, 40, 40, 10]);
 			expect(pathFor(elements[2])).to.eql([40, 10, 45, 100]);
 		});
+
+		it("does not allow text to be selected outside drawing area when drag leaves area", function() {
+			$canvas.on('mousedown', function(event) {
+				expect(event.isDefaultPrevented()).to.be(true);
+			});
+			mouseDown($canvas, 20, 20);
+			mouseMove($canvas, 30, 40);
+			mouseUp($canvas, 30, 40);
+		});
+
+		it("allows text to be selected when dragging outside the drawing area", function() {
+			var $body = $(document.body);
+			$body.on('mousedown', function(event) {
+				expect(event.isDefaultPrevented()).to.be(false);
+			});
+			mouseDown($body, 20, 20);
+			mouseMove($body, 30, 40);
+			mouseUp($body, 30, 40);
+		});
 	});
 
 	describe('Touch events', function() {
@@ -202,7 +219,6 @@
 		});
 
 		it("draws line segment in response to touch events", function() {
-
 			touchStart($canvas, 20, 20);
 			touchMove($canvas, 30, 40);
 			touchEnd($canvas, 30, 40);
@@ -210,6 +226,25 @@
 			var elements = getElementsOnDrawingArea(paper);
 			expect(elements.length).to.equal(1);
 			expect(pathFor(elements[0])).to.eql([20, 20, 30, 40]);
+		});
+
+		it("does not scroll or zoom when user is drawing", function() {
+			$canvas.on('touchstart', function(event) {
+				expect(event.isDefaultPrevented()).to.be(true);
+			});
+			touchStart($canvas, 20, 20);
+			touchMove($canvas, 30, 40);
+			touchEnd($canvas, 30, 40);
+		});
+
+		it("allows scroll or zoom when user is touching outside drawing area", function() {
+			var $body = $(document.body);
+			$body.on('touchstart', function(event) {
+				expect(event.isDefaultPrevented()).to.be(false);
+			});
+			touchStart($body, 20, 20);
+			touchMove($body, 30, 40);
+			touchEnd($body, 30, 40);
 		});
 	});
 
