@@ -74,10 +74,8 @@
 				});
 
 			$(document.body).append($canvas);
-
-			WWPCanvas = new wwp.DomElement($canvas);
-
 			paper = wwp.initializeDrawingArea($canvas[0]);
+			WWPCanvas = new wwp.DomElement($canvas);
 		});
 
 		afterEach(function() {
@@ -113,10 +111,8 @@
 				});
 
 			$(document.body).append($canvas);
-
-			WWPCanvas = new wwp.DomElement($canvas);
-
 			paper = wwp.initializeDrawingArea($canvas[0]);
+			WWPCanvas = new wwp.DomElement($canvas);
 		});
 
 		afterEach(function() {
