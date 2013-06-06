@@ -2,6 +2,10 @@
 	/*global describe, it, expect, afterEach, beforeEach, wwp, $, Raphael, dump, console */
 	"use strict";
 
+	var $canvas, paper, DRAWING_AREA_HEIGHT, DRAWING_AREA_WIDTH;
+	DRAWING_AREA_HEIGHT = 300;
+	DRAWING_AREA_WIDTH = 600;
+
 	describe('wwp helper methods', function() {
 
 		var $elm;
@@ -56,11 +60,6 @@
 
 	describe('Drawing area', function() {
 
-		var $canvas, paper;
-
-		var DRAWING_AREA_HEIGHT = 300;
-		var DRAWING_AREA_WIDTH = 600;
-
 		beforeEach(function() {
 			$canvas = $('<div></div>')
 				.css({
@@ -89,6 +88,29 @@
 			var elements = getElementsOnDrawingArea(paper);
 			expect(elements.length).to.equal(1);
 			expect(pathFor(elements[0])).to.eql([20, 30, 30, 300]);
+		});
+
+	});
+
+	describe('Mouse events', function() {
+
+		if (supportsTouch()) { return; }
+
+		beforeEach(function() {
+			$canvas = $('<div></div>')
+				.css({
+					height: DRAWING_AREA_HEIGHT
+					, width: DRAWING_AREA_WIDTH
+					, border: "0px solid black" // IE8 complains when retrieving border-width if we don't set it first
+				});
+
+			$(document.body).append($canvas);
+
+			paper = wwp.initializeDrawingArea($canvas[0]);
+		});
+
+		afterEach(function() {
+			$canvas.remove();
 		});
 
 		it("draws line segment upon drag", function() {
@@ -156,7 +178,39 @@
 			expect(pathFor(elements[1])).to.eql([30, 40, 40, 10]);
 			expect(pathFor(elements[2])).to.eql([40, 10, 45, 100]);
 		});
+	});
 
+	describe('Touch events', function() {
+
+		if (!supportsTouch()) { return; }
+
+		beforeEach(function() {
+			$canvas = $('<div></div>')
+				.css({
+					height: DRAWING_AREA_HEIGHT
+					, width: DRAWING_AREA_WIDTH
+					, border: "0px solid black" // IE8 complains when retrieving border-width if we don't set it first
+				});
+
+			$(document.body).append($canvas);
+
+			paper = wwp.initializeDrawingArea($canvas[0]);
+		});
+
+		afterEach(function() {
+			$canvas.remove();
+		});
+
+		it("draws line segment in response to touch events", function() {
+
+			touchStart($canvas, 20, 20);
+			touchMove($canvas, 30, 40);
+			touchEnd($canvas, 30, 40);
+
+			var elements = getElementsOnDrawingArea(paper);
+			expect(elements.length).to.equal(1);
+			expect(pathFor(elements[0])).to.eql([20, 20, 30, 40]);
+		});
 	});
 
 
@@ -164,6 +218,41 @@
 	 * Utility functions
 	 *
 	 */
+
+	function touchStart($element, elementX, elementY) {
+		touchEvent('touchstart', $element, elementX, elementY);
+	}
+
+	function touchMove($element, elementX, elementY) {
+		touchEvent('touchmove', $element, elementX, elementY);
+	}
+
+	function touchEnd($element, elementX, elementY) {
+		touchEvent('touchend', $element, elementX, elementY);
+	}
+
+	function touchCancel($element, elementX, elementY) {
+		touchEvent('touchcancel', $element, elementX, elementY);
+	}
+
+	function touchEvent(type, $element, elementX, elementY) {
+		var nativeTouchEvent = document.createEvent('TouchEvent');
+		nativeTouchEvent.initTouchEvent(type, true, true);
+
+		var pagePosition = wwp.pagePositionFromElementPosition($element, elementX, elementY);
+
+		// wrap our native touch event in a jquery event object
+		var jqueryEvent = new $.Event();
+		jqueryEvent.type = type;
+		jqueryEvent.pageX = pagePosition.x;
+		jqueryEvent.pageY = pagePosition.y;
+		jqueryEvent.originalEvent = nativeTouchEvent;
+		$element.trigger(jqueryEvent);
+	}
+
+	function supportsTouch() {
+		return (typeof Touch === 'object');
+	}
 
 	function pathFor(element) {
 		if (Raphael.vml) {
@@ -207,6 +296,7 @@
 
 		return [startX, startY, endX, endY];
 	}
+
 
 	function mouseDown($element, elementX, elementY) {
 		mouseEvent('mousedown', $element, elementX, elementY);

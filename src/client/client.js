@@ -27,7 +27,7 @@ wwp = {};
 	 */
 	function handleMouseEvents($elm) {
 		var startPos, currentPos;
-		$elm.off('click mousedown mouseup'); // clean up any previous event listeners to allow multiple calling of this function
+		$elm.off('mousedown mouseleave mousemove mouseup'); // clean up any previous event listeners to allow multiple calling of this function
 
 		$elm.on('mousedown', function (event) {
 			startPos = wwp.elementPositionFromPagePosition($elm, event.pageX, event.pageY);
@@ -62,27 +62,23 @@ wwp = {};
 	function handleTouchEvents($elm) {
 		var startPos, currentPos;
 
-		$elm[0].addEventListener('touchstart', function (event) {
-			event.preventDefault();
+		$elm.on('touchstart', function (event) {
+			event.preventDefault(); // prevent scrolling
 			startPos = wwp.elementPositionFromPagePosition($elm, event.pageX, event.pageY);
-			event.preventDefault(); // prevent text from being selected when draw leaves area
-		}, false);
+		});
 
-		$elm[0].addEventListener('touchend', function (event) {
+		$elm.on('touchend', function (event) {
 			startPos = null;
-		}, false);
+		});
 
-		$elm[0].addEventListener('touchmove', function (event) {
-			if (!startPos) {
-				return;
-			}
-
+		$elm.on('touchmove', function (event) {
+			if (!startPos) { return; }
 			currentPos = wwp.elementPositionFromPagePosition($elm, event.pageX, event.pageY);
 			if (startPos) {
 				wwp.drawLine(startPos.x, startPos.y, currentPos.x, currentPos.y);
 			}
 			startPos = currentPos;
-		}, false);
+		});
 	}
 
 	/**
