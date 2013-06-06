@@ -13,8 +13,7 @@ files = [
   'node_modules/expect.js/expect.js',
   'vendor_client/jquery.js',
   'vendor_client/raphael.js',
-  'src/client/client.js',
-  'src/client/**/_*_test.js'
+  'src/client/**/*.js'
 ];
 
 
