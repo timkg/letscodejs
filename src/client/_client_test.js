@@ -377,6 +377,11 @@
 		);
 	}
 
+	/**
+	 * Returns a boolean indicating if touch events are supported
+	 * http://modernizr.github.io/Modernizr/touch.html
+	 * @return {Boolean}
+	 */
 	function supportsTouch() {
 		return (typeof Touch === 'object');
 	}

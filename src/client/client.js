@@ -4,7 +4,7 @@ wwp = {};
 (function() {
 	"use strict";
 
-	var paper, $canvas;
+	var paper, $canvas, startPos;
 
 	/**
 	 *
@@ -21,37 +21,48 @@ wwp = {};
 		return paper;
 	};
 
+	function startDrag($elm, pageX, pageY) {
+		startPos = wwp.elementPositionFromPagePosition($elm, pageX, pageY);
+	}
+
+	function continueDrag($elm, pageX, pageY) {
+		if (!startPos) {
+			return;
+		}
+		var currentPos = wwp.elementPositionFromPagePosition($elm, pageX, pageY);
+		wwp.drawLine(startPos.x, startPos.y, currentPos.x, currentPos.y);
+		startPos = currentPos;
+	}
+
+	function endDrag() {
+		startPos = null;
+	}
+
 	/**
 	 * Handles mouse interaction with the drawing area
 	 * @param $elm
 	 */
 	function handleMouseEvents($elm) {
-		var startPos, currentPos;
-		$elm.off('mousedown mouseleave mousemove mouseup'); // clean up any previous event listeners to allow multiple calling of this function
+
+		// clean up any previous event listeners to only respond to drawing
+		$elm.off('mousedown mouseleave mousemove mouseup');
 
 		$elm.on('mousedown', function (event) {
-			startPos = wwp.elementPositionFromPagePosition($elm, event.pageX, event.pageY);
 			event.preventDefault(); // prevent text from being selected when draw leaves area
-		});
-
-		$elm.on('mouseleave', function (event) {
-			startPos = null;
+			startDrag($elm, event.pageX, event.pageY);
 		});
 
 		$elm.on('mousemove', function (event) {
-			if (!startPos) {
-				return;
-			}
-
-			currentPos = wwp.elementPositionFromPagePosition($elm, event.pageX, event.pageY);
-			if (startPos) {
-				wwp.drawLine(startPos.x, startPos.y, currentPos.x, currentPos.y);
-			}
-			startPos = currentPos;
+			if (!startPos) { return; }
+			continueDrag($elm, event.pageX, event.pageY);
 		});
 
-		$(document.body).on('mouseup', function () {
-			startPos = null;
+		$elm.on('mouseleave', function (event) {
+			endDrag();
+		});
+
+		$elm.on('mouseup', function () {
+			endDrag();
 		});
 	}
 
@@ -64,28 +75,21 @@ wwp = {};
 
 		$elm.on('touchstart', function (event) {
 			event.preventDefault(); // prevent scrolling
-			var originalEvent = event.originalEvent;
 
 			// only draw with one finger - cancel on + fingers
-			if (originalEvent.touches.length > 1) {
-				startPos = null;
-				return;
+			if (event.originalEvent.touches.length === 1) {
+				startDrag($elm, event.originalEvent.touches[0].pageX, event.originalEvent.touches[0].pageY);
+			} else {
+				endDrag();
 			}
-			startPos = wwp.elementPositionFromPagePosition($elm, originalEvent.touches[0].pageX, originalEvent.touches[0].pageY);
 		});
 
 		$elm.on('touchend', function (event) {
-			startPos = null;
+			endDrag();
 		});
 
 		$elm.on('touchmove', function (event) {
-			if (!startPos) { return; }
-			var originalEvent = event.originalEvent;
-			currentPos = wwp.elementPositionFromPagePosition($elm, originalEvent.touches[0].pageX, originalEvent.touches[0].pageY);
-			if (startPos) {
-				wwp.drawLine(startPos.x, startPos.y, currentPos.x, currentPos.y);
-			}
-			startPos = currentPos;
+			continueDrag($elm, event.originalEvent.touches[0].pageX, event.originalEvent.touches[0].pageY);
 		});
 	}
 
