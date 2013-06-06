@@ -64,6 +64,7 @@ wwp = {};
 
 		$elm.on('touchstart', function (event) {
 			event.preventDefault(); // prevent scrolling
+			event = event.originalEvent;
 			startPos = wwp.elementPositionFromPagePosition($elm, event.pageX, event.pageY);
 		});
 
@@ -73,6 +74,7 @@ wwp = {};
 
 		$elm.on('touchmove', function (event) {
 			if (!startPos) { return; }
+			event = event.originalEvent;
 			currentPos = wwp.elementPositionFromPagePosition($elm, event.pageX, event.pageY);
 			if (startPos) {
 				wwp.drawLine(startPos.x, startPos.y, currentPos.x, currentPos.y);
@@ -124,6 +126,23 @@ wwp = {};
 		pageX = elementX + ($element.offset().left + contentOffset.x);
 		pageY = elementY + ($element.offset().top + contentOffset.y);
 		return {x: pageX, y: pageY};
+	};
+
+
+	/**
+	 *
+	 * @param $element
+	 * @param elementX
+	 * @param elementY
+	 * @return {Object}
+	 */
+	wwp.viewportPositionFromElementPosition = function($element, elementX, elementY) {
+		var viewportX, viewportY, contentOffset;
+		contentOffset = wwp.contentOffset($element);
+
+		viewportX = elementX + ($element[0].getBoundingClientRect().left + contentOffset.x);
+		viewportY = elementY + ($element[0].getBoundingClientRect().top + contentOffset.y);
+		return {x: viewportX, y: viewportY};
 	};
 
 	/**

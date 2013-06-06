@@ -236,10 +236,25 @@
 	}
 
 	function touchEvent(type, $element, elementX, elementY) {
-		var nativeTouchEvent = document.createEvent('TouchEvent');
-		nativeTouchEvent.initTouchEvent(type, true, true);
-
 		var pagePosition = wwp.pagePositionFromElementPosition($element, elementX, elementY);
+		var viewportPosition = wwp.viewportPositionFromElementPosition($element, elementX, elementY);
+
+		var nativeTouchEvent = document.createEvent('TouchEvent');
+		nativeTouchEvent.initTouchEvent(
+			type
+			, true // canBubble
+			, true // cancelable
+			, window
+			, null
+			, 0
+			, 0
+			, viewportPosition.x // clientX
+			, viewportPosition.y // clientY
+			, false
+			, false
+			, false
+			, false
+		);
 
 		// wrap our native touch event in a jquery event object
 		var jqueryEvent = new $.Event();
