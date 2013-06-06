@@ -64,8 +64,14 @@ wwp = {};
 
 		$elm.on('touchstart', function (event) {
 			event.preventDefault(); // prevent scrolling
-			event = event.originalEvent;
-			startPos = wwp.elementPositionFromPagePosition($elm, event.pageX, event.pageY);
+			var originalEvent = event.originalEvent;
+
+			// only draw with one finger - cancel on + fingers
+			if (originalEvent.touches.length > 1) {
+				startPos = null;
+				return;
+			}
+			startPos = wwp.elementPositionFromPagePosition($elm, originalEvent.touches[0].pageX, originalEvent.touches[0].pageY);
 		});
 
 		$elm.on('touchend', function (event) {
@@ -74,8 +80,8 @@ wwp = {};
 
 		$elm.on('touchmove', function (event) {
 			if (!startPos) { return; }
-			event = event.originalEvent;
-			currentPos = wwp.elementPositionFromPagePosition($elm, event.pageX, event.pageY);
+			var originalEvent = event.originalEvent;
+			currentPos = wwp.elementPositionFromPagePosition($elm, originalEvent.touches[0].pageX, originalEvent.touches[0].pageY);
 			if (startPos) {
 				wwp.drawLine(startPos.x, startPos.y, currentPos.x, currentPos.y);
 			}
