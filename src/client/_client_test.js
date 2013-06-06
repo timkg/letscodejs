@@ -2,16 +2,16 @@
 	/*global describe, it, expect, afterEach, beforeEach, wwp, $, Raphael, dump, console */
 	"use strict";
 
-	var $canvas, paper, DRAWING_AREA_HEIGHT, DRAWING_AREA_WIDTH;
+	var DRAWING_AREA_HEIGHT, DRAWING_AREA_WIDTH;
 	DRAWING_AREA_HEIGHT = 300;
 	DRAWING_AREA_WIDTH = 600;
 
 	describe('wwp helper methods', function() {
 
-		var $elm;
+		var WWPElm;
 
 		beforeEach(function() {
-			$elm = $('<div></div>')
+			var $elm = $('<div></div>')
 				.css({
 					height: '200px'
 					, width: '200px'
@@ -27,26 +27,29 @@
 					, border: 0
 				})
 				.append($elm);
+
+			WWPElm = new wwp.DomElement($elm);
 		});
 
 		afterEach(function() {
-			$elm.remove();
+			WWPElm.element.remove();
+			WWPElm = null;
 		});
 
 		it('calculates distance between topleft border edge and topleft content edge', function() {
-			var distance = wwp.contentOffset($elm);
+			var distance = WWPElm.contentOffset();
 			// border: '20px solid black' + padding: '15px'
 			expect(distance).to.eql({x: 35, y: 35});
 		});
 
 		it('calculates coordinates on DOM element from global page position', function() {
-			var pos = wwp.elementPositionFromPagePosition($elm, 100, 100);
+			var pos = WWPElm.elementPositionFromPagePosition(100, 100);
 			// border: '20px solid black' + padding: '15px' + margin: '20px'
 			expect(pos).to.eql({x: 45, y: 45});
 		});
 
 		it('calculates page coordinates from coordinates on DOM element', function() {
-			var pos = wwp.pagePositionFromElementPosition($elm, 100, 100);
+			var pos = WWPElm.pagePositionFromElementPosition(100, 100);
 			// border: '20px solid black' + padding: '15px' + margin: '20px'
 			expect(pos).to.eql({x: 155, y: 155});
 		});
@@ -60,6 +63,8 @@
 
 	describe('Drawing area', function() {
 
+		var $canvas, paper, WWPCanvas;
+
 		beforeEach(function() {
 			$canvas = $('<div></div>')
 				.css({
@@ -70,11 +75,14 @@
 
 			$(document.body).append($canvas);
 
+			WWPCanvas = new wwp.DomElement($canvas);
+
 			paper = wwp.initializeDrawingArea($canvas[0]);
 		});
 
 		afterEach(function() {
 			$canvas.remove();
+			WWPCanvas = null;
 		});
 
 		it('should have the same dimensions as its enclosing div', function() {
@@ -94,6 +102,8 @@
 
 	describe('Mouse events', function() {
 
+		var $canvas, paper, WWPCanvas;
+
 		beforeEach(function() {
 			$canvas = $('<div></div>')
 				.css({
@@ -104,17 +114,20 @@
 
 			$(document.body).append($canvas);
 
+			WWPCanvas = new wwp.DomElement($canvas);
+
 			paper = wwp.initializeDrawingArea($canvas[0]);
 		});
 
 		afterEach(function() {
 			$canvas.remove();
+			WWPCanvas = null;
 		});
 
 		it("draws line segment upon drag", function() {
-			mouseDown($canvas, 20, 20);
-			mouseMove($canvas, 30, 40);
-			mouseUp($canvas, 30, 40);
+			mouseDown(WWPCanvas, 20, 20);
+			mouseMove(WWPCanvas, 30, 40);
+			mouseUp(WWPCanvas, 30, 40);
 
 			var elements = getElementsOnDrawingArea(paper);
 			expect(elements.length).to.equal(1);
@@ -122,18 +135,18 @@
 		});
 
 		it("does not draw line segment when mouse is not down", function() {
-			mouseMove($canvas, 30, 40);
-			mouseUp($canvas, 30, 40);
+			mouseMove(WWPCanvas, 30, 40);
+			mouseUp(WWPCanvas, 30, 40);
 
 			var elements = getElementsOnDrawingArea(paper);
 			expect(elements.length).to.equal(0);
 		});
 
 		it("stops to draw line segment when mouse is up", function() {
-			mouseDown($canvas, 20, 20);
-			mouseMove($canvas, 30, 40);
-			mouseUp($canvas, 30, 40);
-			mouseMove($canvas, 35, 45);
+			mouseDown(WWPCanvas, 20, 20);
+			mouseMove(WWPCanvas, 30, 40);
+			mouseUp(WWPCanvas, 30, 40);
+			mouseMove(WWPCanvas, 35, 45);
 
 			var elements = getElementsOnDrawingArea(paper);
 			expect(elements.length).to.equal(1);
@@ -141,22 +154,22 @@
 		});
 
 		it("does not draw line segment when mouse leaves drawing area", function() {
-			mouseDown($canvas, 20, 20);
-			mouseLeave($canvas, 1000, 40);
-			mouseMove($canvas, 35, 45);
-			mouseMove($canvas, 10, 100);
-			mouseUp($canvas, 35, 45);
+			mouseDown(WWPCanvas, 20, 20);
+			mouseLeave(WWPCanvas, 1000, 40);
+			mouseMove(WWPCanvas, 35, 45);
+			mouseMove(WWPCanvas, 10, 100);
+			mouseUp(WWPCanvas, 35, 45);
 
 			var elements = getElementsOnDrawingArea(paper);
 			expect(elements.length).to.equal(0);
 		});
 
 		it("stops to draw more line segments when mouse leaves drawing area", function() {
-			mouseDown($canvas, 20, 20);
-			mouseMove($canvas, 35, 45);
-			mouseLeave($canvas, 1000, 40);
-			mouseMove($canvas, 10, 100);
-			mouseUp($canvas, 35, 45);
+			mouseDown(WWPCanvas, 20, 20);
+			mouseMove(WWPCanvas, 35, 45);
+			mouseLeave(WWPCanvas, 1000, 40);
+			mouseMove(WWPCanvas, 10, 100);
+			mouseUp(WWPCanvas, 35, 45);
 
 			var elements = getElementsOnDrawingArea(paper);
 			expect(elements.length).to.equal(1);
@@ -164,11 +177,11 @@
 		});
 
 		it("draws multiple segments", function() {
-			mouseDown($canvas, 20, 20);
-			mouseMove($canvas, 30, 40);
-			mouseMove($canvas, 40, 10);
-			mouseMove($canvas, 45, 100);
-			mouseUp($canvas, 45, 100);
+			mouseDown(WWPCanvas, 20, 20);
+			mouseMove(WWPCanvas, 30, 40);
+			mouseMove(WWPCanvas, 40, 10);
+			mouseMove(WWPCanvas, 45, 100);
+			mouseUp(WWPCanvas, 45, 100);
 
 			var elements = getElementsOnDrawingArea(paper);
 			expect(elements.length).to.equal(3);
@@ -178,28 +191,30 @@
 		});
 
 		it("does not allow text to be selected outside drawing area when drag leaves area", function() {
-			$canvas.on('mousedown', function(event) {
+			WWPCanvas.element.on('mousedown', function(event) {
 				expect(event.isDefaultPrevented()).to.be(true);
 			});
-			mouseDown($canvas, 20, 20);
-			mouseMove($canvas, 30, 40);
-			mouseUp($canvas, 30, 40);
+			mouseDown(WWPCanvas, 20, 20);
+			mouseMove(WWPCanvas, 30, 40);
+			mouseUp(WWPCanvas, 30, 40);
 		});
 
-		it("allows text to be selected when dragging outside the drawing area", function() {
-			var $body = $(document.body);
-			$body.on('mousedown', function(event) {
-				expect(event.isDefaultPrevented()).to.be(false);
-			});
-			mouseDown($body, 20, 20);
-			mouseMove($body, 30, 40);
-			mouseUp($body, 30, 40);
-		});
+//		it("allows text to be selected when dragging outside the drawing area", function() {
+//			var $body = $(document.body);
+//			$body.on('mousedown', function(event) {
+//				expect(event.isDefaultPrevented()).to.be(false);
+//			});
+//			mouseDown($body, 20, 20);
+//			mouseMove($body, 30, 40);
+//			mouseUp($body, 30, 40);
+//		});
 	});
 
 	describe('Touch events', function() {
 
 		if (!supportsTouch()) { return; }
+
+		var $canvas, paper, WWPCanvas;
 
 		beforeEach(function() {
 			$canvas = $('<div></div>')
@@ -211,17 +226,20 @@
 
 			$(document.body).append($canvas);
 
+			WWPCanvas = new wwp.DomElement($canvas);
+
 			paper = wwp.initializeDrawingArea($canvas[0]);
 		});
 
 		afterEach(function() {
 			$canvas.remove();
+			WWPCanvas = null;
 		});
 
 		it("draws line segment in response to touch events", function() {
-			touchStart($canvas, 20, 20);
-			touchMove($canvas, 30, 40);
-			touchEnd($canvas, 30, 40);
+			touchStart(WWPCanvas, 20, 20);
+			touchMove(WWPCanvas, 30, 40);
+			touchEnd(WWPCanvas, 30, 40);
 
 			var elements = getElementsOnDrawingArea(paper);
 			expect(elements.length).to.equal(1);
@@ -229,32 +247,32 @@
 		});
 
 		it("does not scroll or zoom when user is drawing", function() {
-			$canvas.on('touchstart', function(event) {
+			WWPCanvas.element.on('touchstart', function(event) {
 				expect(event.isDefaultPrevented()).to.be(true);
 			});
-			touchStart($canvas, 20, 20);
-			touchMove($canvas, 30, 40);
-			touchEnd($canvas, 30, 40);
+			touchStart(WWPCanvas, 20, 20);
+			touchMove(WWPCanvas, 30, 40);
+			touchEnd(WWPCanvas, 30, 40);
 		});
 
-		it("allows scroll or zoom when user is touching outside drawing area", function() {
-			var $body = $(document.body);
-			$body.on('touchstart', function(event) {
-				expect(event.isDefaultPrevented()).to.be(false);
-				$body.off('touchstart');
-			});
-			touchStart($body, 20, 20);
-			touchMove($body, 30, 40);
-			touchEnd($body, 30, 40);
-		});
+//		it("allows scroll or zoom when user is touching outside drawing area", function() {
+//			var $body = $(document.body);
+//			$body.on('touchstart', function(event) {
+//				expect(event.isDefaultPrevented()).to.be(false);
+//				$body.off('touchstart');
+//			});
+//			touchStart($body, 20, 20);
+//			touchMove($body, 30, 40);
+//			touchEnd($body, 30, 40);
+//		});
 
 		it("stops drawing when multiple touches occur", function() {
-			touchStart($canvas, 20, 20);
-			touchMove($canvas, 30, 40);
-			createMultiTouchEvent('touchstart', $canvas, 20, 20, 30, 30);
-			createMultiTouchEvent('touchmove', $canvas, 30, 30, 40, 40);
-			touchMove($canvas, 40, 50);
-			touchEnd($canvas, 40, 50);
+			touchStart(WWPCanvas, 20, 20);
+			touchMove(WWPCanvas, 30, 40);
+			createMultiTouchEvent('touchstart', WWPCanvas, 20, 20, 30, 30);
+			createMultiTouchEvent('touchmove', WWPCanvas, 30, 30, 40, 40);
+			touchMove(WWPCanvas, 40, 50);
+			touchEnd(WWPCanvas, 40, 50);
 
 			var elements = getElementsOnDrawingArea(paper);
 			expect(elements.length).to.equal(1);
@@ -273,20 +291,20 @@
 	// Touch: a point of contact between a finger and the screen
 	// TouchList: a list of Touches that take part in a TouchEvent
 
-	function touchStart($element, elementX, elementY) {
-		createSingleTouchEvent('touchstart', $element, elementX, elementY);
+	function touchStart(WWPElm, elementX, elementY) {
+		createSingleTouchEvent('touchstart', WWPElm, elementX, elementY);
 	}
 
-	function touchMove($element, elementX, elementY) {
-		createSingleTouchEvent('touchmove', $element, elementX, elementY);
+	function touchMove(WWPElm, elementX, elementY) {
+		createSingleTouchEvent('touchmove', WWPElm, elementX, elementY);
 	}
 
-	function touchEnd($element, elementX, elementY) {
-		createSingleTouchEvent('touchend', $element, elementX, elementY);
+	function touchEnd(WWPElm, elementX, elementY) {
+		createSingleTouchEvent('touchend', WWPElm, elementX, elementY);
 	}
 
-	function touchCancel($element, elementX, elementY) {
-		createSingleTouchEvent('touchcancel', $element, elementX, elementY);
+	function touchCancel(WWPElm, elementX, elementY) {
+		createSingleTouchEvent('touchcancel', WWPElm, elementX, elementY);
 	}
 
 	/**
@@ -296,10 +314,10 @@
 	 * @param elementX
 	 * @param elementY
 	 */
-	function createSingleTouchEvent(type, $element, elementX, elementY) {
-		var touchPoint = createTouchPoint($element, elementX, elementY);
+	function createSingleTouchEvent(type, WWPElm, elementX, elementY) {
+		var touchPoint = createTouchPoint(WWPElm, elementX, elementY);
 		var touchEvent = createNativeTouchEvent(type, new TouchList(touchPoint));
-		dispatchTouchEvent($element, touchEvent);
+		dispatchTouchEvent(WWPElm, touchEvent);
 	}
 
 	/**
@@ -311,11 +329,11 @@
 	 * @param elementX2
 	 * @param elementY2
 	 */
-	function createMultiTouchEvent(type, $element, elementX1, elementY1, elementX2, elementY2) {
-		var touchPoint1 = createTouchPoint($element, elementX1, elementY1);
-		var touchPoint2 = createTouchPoint($element, elementX2, elementY2);
+	function createMultiTouchEvent(type, WWPElm, elementX1, elementY1, elementX2, elementY2) {
+		var touchPoint1 = createTouchPoint(WWPElm, elementX1, elementY1);
+		var touchPoint2 = createTouchPoint(WWPElm, elementX2, elementY2);
 		var touchEvent = createNativeTouchEvent(type , new TouchList(touchPoint1, touchPoint2));
-		dispatchTouchEvent($element, touchEvent);
+		dispatchTouchEvent(WWPElm, touchEvent);
 	}
 
 	/**
@@ -349,11 +367,11 @@
 	 * @param $element
 	 * @param touchEvent
 	 */
-	function dispatchTouchEvent($element, touchEvent) {
+	function dispatchTouchEvent(WWPElm, touchEvent) {
 		var jqueryEvent = new $.Event();
 		jqueryEvent.type = touchEvent.type;
 		jqueryEvent.originalEvent = touchEvent;
-		$element.trigger(jqueryEvent);
+		WWPElm.element.trigger(jqueryEvent);
 	}
 
 	/**
@@ -364,12 +382,12 @@
 	 * @param elementY
 	 * @return {Touch}
 	 */
-	function createTouchPoint($element, elementX, elementY) {
-		var pagePosition = wwp.pagePositionFromElementPosition($element, elementX, elementY);
+	function createTouchPoint(WWPElm, elementX, elementY) {
+		var pagePosition = WWPElm.pagePositionFromElementPosition(elementX, elementY);
 
 		return new Touch(
 			undefined
-			, $element[0]
+			, WWPElm.element[0]
 			, 0
 			, pagePosition.x
 			, pagePosition.y
@@ -430,28 +448,28 @@
 	}
 
 
-	function mouseDown($element, elementX, elementY) {
-		mouseEvent('mousedown', $element, elementX, elementY);
+	function mouseDown(WWPElement, elementX, elementY) {
+		mouseEvent('mousedown', WWPElement, elementX, elementY);
 	}
 
-	function mouseUp($element, elementX, elementY) {
-		mouseEvent('mouseup', $element, elementX, elementY);
+	function mouseUp(WWPElement, elementX, elementY) {
+		mouseEvent('mouseup', WWPElement, elementX, elementY);
 	}
 
-	function mouseMove($element, elementX, elementY) {
-		mouseEvent('mousemove', $element, elementX, elementY);
+	function mouseMove(WWPElement, elementX, elementY) {
+		mouseEvent('mousemove', WWPElement, elementX, elementY);
 	}
 
-	function mouseLeave($element, elementX, elementY) {
-		mouseEvent('mouseleave', $element, elementX, elementY);
+	function mouseLeave(WWPElement, elementX, elementY) {
+		mouseEvent('mouseleave', WWPElement, elementX, elementY);
 	}
 
-	function mouseEvent(type, $element, elementX, elementY) {
+	function mouseEvent(type, WWPElm, elementX, elementY) {
 		var event = $.Event(type);
-		var pagePosition = wwp.pagePositionFromElementPosition($element, elementX, elementY);
+		var pagePosition = WWPElm.pagePositionFromElementPosition(elementX, elementY);
 		event.pageX = pagePosition.x;
 		event.pageY = pagePosition.y;
-		$element.trigger(event);
+		WWPElm.element.trigger(event);
 	}
 
 	function getElementsOnDrawingArea(paper) {

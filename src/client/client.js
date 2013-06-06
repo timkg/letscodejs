@@ -1,5 +1,5 @@
 /*global $, Raphael, wwp:true, console*/
-wwp = {};
+window.wwp = window.wwp || {};
 
 (function() {
 	"use strict";
@@ -16,20 +16,20 @@ wwp = {};
 		paper = new Raphael(drawingAreaElement);
 		$canvas = $(drawingAreaElement);
 
-		handleMouseEvents($canvas);
-		handleTouchEvents($canvas);
+		handleMouseEvents(new wwp.DomElement($canvas));
+		handleTouchEvents(new wwp.DomElement($canvas));
 		return paper;
 	};
 
-	function startDrag($elm, pageX, pageY) {
-		startPos = wwp.elementPositionFromPagePosition($elm, pageX, pageY);
+	function startDrag(elm, pageX, pageY) {
+		startPos = elm.elementPositionFromPagePosition(pageX, pageY);
 	}
 
-	function continueDrag($elm, pageX, pageY) {
+	function continueDrag(elm, pageX, pageY) {
 		if (!startPos) {
 			return;
 		}
-		var currentPos = wwp.elementPositionFromPagePosition($elm, pageX, pageY);
+		var currentPos = elm.elementPositionFromPagePosition(pageX, pageY);
 		wwp.drawLine(startPos.x, startPos.y, currentPos.x, currentPos.y);
 		startPos = currentPos;
 	}
@@ -40,56 +40,56 @@ wwp = {};
 
 	/**
 	 * Handles mouse interaction with the drawing area
-	 * @param $elm
+	 * @param WWPElm
 	 */
-	function handleMouseEvents($elm) {
+	function handleMouseEvents(WWPElm) {
 
 		// clean up any previous event listeners to only respond to drawing
-		$elm.off('mousedown mouseleave mousemove mouseup');
+		WWPElm.element.off('mousedown mouseleave mousemove mouseup');
 
-		$elm.on('mousedown', function (event) {
+		WWPElm.element.on('mousedown', function (event) {
 			event.preventDefault(); // prevent text from being selected when draw leaves area
-			startDrag($elm, event.pageX, event.pageY);
+			startDrag(WWPElm, event.pageX, event.pageY);
 		});
 
-		$elm.on('mousemove', function (event) {
+		WWPElm.element.on('mousemove', function (event) {
 			if (!startPos) { return; }
-			continueDrag($elm, event.pageX, event.pageY);
+			continueDrag(WWPElm, event.pageX, event.pageY);
 		});
 
-		$elm.on('mouseleave', function (event) {
+		WWPElm.element.on('mouseleave', function (event) {
 			endDrag();
 		});
 
-		$elm.on('mouseup', function () {
+		WWPElm.element.on('mouseup', function () {
 			endDrag();
 		});
 	}
 
 	/**
 	 * Handle touch interaction with the drawing area
-	 * @param $elm
+	 * @param WWPElm
 	 */
-	function handleTouchEvents($elm) {
+	function handleTouchEvents(WWPElm) {
 		var startPos, currentPos;
 
-		$elm.on('touchstart', function (event) {
+		WWPElm.element.on('touchstart', function (event) {
 			event.preventDefault(); // prevent scrolling
 
 			// only draw with one finger - cancel on + fingers
 			if (event.originalEvent.touches.length === 1) {
-				startDrag($elm, event.originalEvent.touches[0].pageX, event.originalEvent.touches[0].pageY);
+				startDrag(WWPElm, event.originalEvent.touches[0].pageX, event.originalEvent.touches[0].pageY);
 			} else {
 				endDrag();
 			}
 		});
 
-		$elm.on('touchend', function (event) {
+		WWPElm.element.on('touchend', function (event) {
 			endDrag();
 		});
 
-		$elm.on('touchmove', function (event) {
-			continueDrag($elm, event.originalEvent.touches[0].pageX, event.originalEvent.touches[0].pageY);
+		WWPElm.element.on('touchmove', function (event) {
+			continueDrag(WWPElm, event.originalEvent.touches[0].pageX, event.originalEvent.touches[0].pageY);
 		});
 	}
 

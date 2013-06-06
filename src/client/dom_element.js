@@ -5,69 +5,71 @@ window.wwp = window.wwp || {};
 	"use strict";
 
 	/**
+	 * Wraps a DOM Element with utility methods
+	 * @type {Function}
+	 */
+	var DomElement = wwp.DomElement = function (browserDomElement) {
+		this.element = browserDomElement;
+	};
+
+	/**
 	 * Calculates relative coordinates on element from absolute coordinates on page
-	 * @param $element
 	 * @param pageX
 	 * @param pageY
 	 * @return {Object}
 	 */
-		// TODO - accept jQuery event object
-	wwp.elementPositionFromPagePosition = function($element, pageX, pageY) {
+	DomElement.prototype.elementPositionFromPagePosition = function(pageX, pageY) {
 		var relativeX, relativeY, contentOffset;
-		contentOffset = wwp.contentOffset($element);
+		contentOffset = this.contentOffset(this.element);
 
-		relativeX = pageX - ($element.offset().left + contentOffset.x);
-		relativeY = pageY - ($element.offset().top + contentOffset.y);
+		relativeX = pageX - (this.element.offset().left + contentOffset.x);
+		relativeY = pageY - (this.element.offset().top + contentOffset.y);
 		return {x: relativeX, y: relativeY};
 	};
 
 	/**
-	 * Calculates absolute page coordinates from relative element coordinates
-	 * @param $element
+	 * Calculates absolute page coordinates from relative coordinates
 	 * @param elementX
 	 * @param elementY
 	 * @return {Object}
 	 */
-	wwp.pagePositionFromElementPosition = function($element, elementX, elementY) {
+	DomElement.prototype.pagePositionFromElementPosition = function(elementX, elementY) {
 		var pageX, pageY, contentOffset;
-		contentOffset = wwp.contentOffset($element);
+		contentOffset = this.contentOffset();
 
-		pageX = elementX + ($element.offset().left + contentOffset.x);
-		pageY = elementY + ($element.offset().top + contentOffset.y);
+		pageX = elementX + (this.element.offset().left + contentOffset.x);
+		pageY = elementY + (this.element.offset().top + contentOffset.y);
 		return {x: pageX, y: pageY};
-	};
-
-
-	/**
-	 *
-	 * @param $element
-	 * @param elementX
-	 * @param elementY
-	 * @return {Object}
-	 */
-	wwp.viewportPositionFromElementPosition = function($element, elementX, elementY) {
-		var viewportX, viewportY, contentOffset;
-		contentOffset = wwp.contentOffset($element);
-
-		viewportX = elementX + ($element[0].getBoundingClientRect().left + contentOffset.x);
-		viewportY = elementY + ($element[0].getBoundingClientRect().top + contentOffset.y);
-		return {x: viewportX, y: viewportY};
 	};
 
 	/**
 	 * Calculates px between element topleft border edge and topleft content egde
-	 * @param $element
 	 * @return {Object}
 	 */
-	wwp.contentOffset = function($element) {
+	DomElement.prototype.contentOffset = function() {
 		var borderLeftWidth, paddingLeft, borderTopWidth, paddingTop;
 
-		borderLeftWidth = parseInt($element.css('border-left-width'), 10);
-		paddingLeft = parseInt($element.css('padding-left'), 10);
-		borderTopWidth = parseInt($element.css('border-top-width'), 10);
-		paddingTop = parseInt($element.css('padding-top'), 10);
+		borderLeftWidth = parseInt(this.element.css('border-left-width'), 10);
+		paddingLeft = parseInt(this.element.css('padding-left'), 10);
+		borderTopWidth = parseInt(this.element.css('border-top-width'), 10);
+		paddingTop = parseInt(this.element.css('padding-top'), 10);
 
 		return {x: borderLeftWidth + paddingLeft, y: borderTopWidth + paddingTop};
+	};
+
+	/**
+	 * Calculates viewport coordinates from relative coordinates
+	 * @param elementX
+	 * @param elementY
+	 * @return {Object}
+	 */
+	DomElement.prototype.viewportPositionFromElementPosition = function(elementX, elementY) {
+		var viewportX, viewportY, contentOffset;
+		contentOffset = this.contentOffset();
+
+		viewportX = elementX + (this.element[0].getBoundingClientRect().left + contentOffset.x);
+		viewportY = elementY + (this.element[0].getBoundingClientRect().top + contentOffset.y);
+		return {x: viewportX, y: viewportY};
 	};
 
 }());
