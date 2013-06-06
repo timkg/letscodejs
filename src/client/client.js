@@ -4,10 +4,10 @@ window.wwp = window.wwp || {};
 (function() {
 	"use strict";
 
-	var paper, $canvas, startPos;
+	var paper, $canvas, WWPCanvas, startPos;
 
 	/**
-	 *
+	 * Kicks off Raphael and wraps the drawing area into our DOM abstraction
 	 * @param drawingAreaElement
 	 * @return {Raphael}
 	 */
@@ -15,28 +15,12 @@ window.wwp = window.wwp || {};
 
 		paper = new Raphael(drawingAreaElement);
 		$canvas = $(drawingAreaElement);
+		WWPCanvas = new wwp.DomElement($canvas);
 
-		handleMouseEvents(new wwp.DomElement($canvas));
-		handleTouchEvents(new wwp.DomElement($canvas));
+		handleMouseEvents(WWPCanvas);
+		handleTouchEvents(WWPCanvas);
 		return paper;
 	};
-
-	function startDrag(elm, pageX, pageY) {
-		startPos = elm.elementPositionFromPagePosition(pageX, pageY);
-	}
-
-	function continueDrag(elm, pageX, pageY) {
-		if (!startPos) {
-			return;
-		}
-		var currentPos = elm.elementPositionFromPagePosition(pageX, pageY);
-		wwp.drawLine(startPos.x, startPos.y, currentPos.x, currentPos.y);
-		startPos = currentPos;
-	}
-
-	function endDrag() {
-		startPos = null;
-	}
 
 	/**
 	 * Handles mouse interaction with the drawing area
@@ -45,6 +29,7 @@ window.wwp = window.wwp || {};
 	function handleMouseEvents(WWPElm) {
 
 		// clean up any previous event listeners to only respond to drawing
+		// TODO - check if we really need this
 		WWPElm.element.off('mousedown mouseleave mousemove mouseup');
 
 		WWPElm.element.on('mousedown', function (event) {
@@ -71,7 +56,6 @@ window.wwp = window.wwp || {};
 	 * @param WWPElm
 	 */
 	function handleTouchEvents(WWPElm) {
-		var startPos, currentPos;
 
 		WWPElm.element.on('touchstart', function (event) {
 			event.preventDefault(); // prevent scrolling
@@ -91,6 +75,24 @@ window.wwp = window.wwp || {};
 		WWPElm.element.on('touchmove', function (event) {
 			continueDrag(WWPElm, event.originalEvent.touches[0].pageX, event.originalEvent.touches[0].pageY);
 		});
+	}
+
+
+	function startDrag(WWPElm, pageX, pageY) {
+		startPos = WWPElm.elementPositionFromPagePosition(pageX, pageY);
+	}
+
+	function continueDrag(WWPElm, pageX, pageY) {
+		if (!startPos) {
+			return;
+		}
+		var currentPos = WWPElm.elementPositionFromPagePosition(pageX, pageY);
+		wwp.drawLine(startPos.x, startPos.y, currentPos.x, currentPos.y);
+		startPos = currentPos;
+	}
+
+	function endDrag() {
+		startPos = null;
 	}
 
 	/**
