@@ -39,8 +39,9 @@ window.wwp = window.wwp || {};
 	}
 
 	/**
+	 * -------------------------------------------------------------------
 	 * Drawing UI behaviour - connect event listeners to drawing functions
-	 *
+	 * -------------------------------------------------------------------
 	 */
 
 	function handleStartDrag(event, offset) {
@@ -59,8 +60,9 @@ window.wwp = window.wwp || {};
 
 
 	/**
+	 * --------------------------
 	 * Programmatic drawing logic
-	 *
+	 * --------------------------
 	 */
 
 	function startDrag(offset) {
