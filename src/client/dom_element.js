@@ -42,6 +42,40 @@ window.wwp = window.wwp || {};
 	};
 
 	/**
+	 * Only attaches an event listener to the element when a single touch point exists
+	 * @param type
+	 * @param callback
+	 */
+	DomElement.prototype.onSingleTouch = function(type, callback) {
+		var self = this;
+		this.element.on(type, function(event) {
+		if (event.originalEvent.touches.length !== 1) { return; }
+			var relativeCoordinates = self.elementPositionFromPagePosition(
+				event.originalEvent.touches[0].pageX
+				, event.originalEvent.touches[0].pageY
+			);
+			callback(event, relativeCoordinates);
+		});
+	};
+
+	/**
+	 * Only attaches an event listener to the element when multiple touch points exist
+	 * @param type
+	 * @param callback
+	 */
+	DomElement.prototype.onMultiTouch = function(type, callback) {
+		var self = this;
+		this.element.on(type, function(event) {
+		if (event.originalEvent.touches.length < 2) { return; }
+			var relativeCoordinates = self.elementPositionFromPagePosition(
+				event.originalEvent.touches[0].pageX
+				, event.originalEvent.touches[0].pageY
+			);
+			callback(event, relativeCoordinates);
+		});
+	};
+
+	/**
 	 * Calculates relative coordinates on element from absolute coordinates on page
 	 * @param pageX
 	 * @param pageY
