@@ -1,7 +1,7 @@
 window.wwp = window.wwp || {};
 
 (function () {
-	/**/
+	/*global $*/
 	"use strict";
 
 	/**
@@ -11,6 +11,120 @@ window.wwp = window.wwp || {};
 	var DomElement = wwp.DomElement = function (browserDomElement) {
 		this.element = browserDomElement;
 	};
+
+	/**
+	 * ---------------------------------------
+	 * EVENT TRIGGERING / FIRING / DISPATCHING
+	 * ---------------------------------------
+	 */
+
+	/**
+	 * Triggers a MouseEvent on the element
+	 *   Usage: WWPElm.triggerMouse('move', 30, 30)
+	 *     -> triggers a mousemove event on the element, at relative coordinates 30,30
+	 * @param type
+	 * @param event
+	 */
+	DomElement.prototype.triggerMouse = function(type, elementX, elementY) {
+		var event = $.Event('mouse'+type);
+		var pagePosition = this.pagePositionFromElementPosition(elementX, elementY);
+		event.pageX = pagePosition.x;
+		event.pageY = pagePosition.y;
+		this.element.trigger(event);
+	};
+
+	/**
+	 * Triggers a TouchEvent on the element, with a single Touch (point of contact)
+	 *   Usage: WWPElm.triggerTouch('start', 30, 30)
+	 *     -> triggers a touchstart event on the element, at relative coordinates 30,30
+	 * @param type
+	 * @param elementX
+	 * @param elementY
+	 */
+	DomElement.prototype.triggerTouch = function(type, elementX, elementY) {
+		var touchPoint = this.createTouchPoint(elementX, elementY);
+		var touchEvent = createTouchEventObject('touch'+type , new TouchList(touchPoint));
+		dispatchTouchEvent(this, touchEvent);
+	};
+
+	/**
+	 * Triggers a TouchEvent on the element, with two Touches (points of contact)
+	 *   Usage: WWPElm.triggerTouch('start', 30, 30, 35, 35)
+	 *     -> triggers a touchstart event on the element
+	 * @param type
+	 * @param elementX1
+	 * @param elementY1
+	 * @param elementX2
+	 * @param elementY2
+	 */
+	DomElement.prototype.triggerMultiTouch = function(type, elementX1, elementY1, elementX2, elementY2) {
+		var touchPoint1 = this.createTouchPoint(elementX1, elementY1);
+		var touchPoint2 = this.createTouchPoint(elementX2, elementY2);
+		var touchEvent = createTouchEventObject('touch'+type , new TouchList(touchPoint1, touchPoint2));
+		dispatchTouchEvent(this, touchEvent);
+	};
+
+	/**
+	 * Creates a Touch object (point of contact) on the element
+	 * @param elementX
+	 * @param elementY
+	 * @return {Touch}
+	 */
+	DomElement.prototype.createTouchPoint = function(elementX, elementY) {
+		var pagePosition = this.pagePositionFromElementPosition(elementX, elementY);
+
+		return new Touch(
+			undefined
+			, this.element
+			, 0
+			, pagePosition.x
+			, pagePosition.y
+			, 0, 0 // clientX/Y
+		);
+	};
+
+	/**
+	 * Creates a native TouchEvent object
+	 * @param type
+	 * @param touchList
+	 * @return {Event}
+	 */
+	function createTouchEventObject(type, touchList) {
+		var nativeTouchEvent = document.createEvent('TouchEvent');
+		nativeTouchEvent.initTouchEvent(
+			type
+			, true // canBubble
+			, true // cancelable
+			, window
+			, null
+			, 0, 0 // screenX/Y
+			, 0, 0 // pageX/Y
+			, false, false, false, false // meta keys  - shift, alt, etc
+			, touchList
+			, touchList
+			, touchList
+		);
+
+		return nativeTouchEvent;
+	}
+
+	/**
+	 * Wraps a native TouchEvent in a jQuery event object and triggers it on the target wwp.DomElement
+	 * @param $element
+	 * @param touchEvent
+	 */
+	function dispatchTouchEvent(wwpelm, touchEvent) {
+		var jqueryEvent = new $.Event();
+		jqueryEvent.type = touchEvent.type;
+		jqueryEvent.originalEvent = touchEvent;
+		wwpelm.element.trigger(jqueryEvent);
+	}
+
+	/**
+	 * --------------------------
+	 * EVENT LISTENERS / HANDLERS
+	 * --------------------------
+	 */
 
 	/**
 	 * Attaches an event listener to the element which gets called with relative coordinates
@@ -118,21 +232,6 @@ window.wwp = window.wwp || {};
 		paddingTop = parseInt(this.element.css('padding-top'), 10);
 
 		return {x: borderLeftWidth + paddingLeft, y: borderTopWidth + paddingTop};
-	};
-
-	/**
-	 * Calculates viewport coordinates from relative coordinates
-	 * @param elementX
-	 * @param elementY
-	 * @return {Object}
-	 */
-	DomElement.prototype.viewportPositionFromElementPosition = function(elementX, elementY) {
-		var viewportX, viewportY, contentOffset;
-		contentOffset = this.contentOffset();
-
-		viewportX = elementX + (this.element[0].getBoundingClientRect().left + contentOffset.x);
-		viewportY = elementY + (this.element[0].getBoundingClientRect().top + contentOffset.y);
-		return {x: viewportX, y: viewportY};
 	};
 
 }());
