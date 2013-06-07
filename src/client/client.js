@@ -28,27 +28,10 @@ window.wwp = window.wwp || {};
 	 */
 	function handleMouseEvents(WWPElm) {
 
-		// clean up any previous event listeners to only respond to drawing
-		// TODO - check if we really need this
-		WWPElm.element.off('mousedown mouseleave mousemove mouseup');
-
-		WWPElm.element.on('mousedown', function (event) {
-			event.preventDefault(); // prevent text from being selected when draw leaves area
-			startDrag(WWPElm, event.pageX, event.pageY);
-		});
-
-		WWPElm.element.on('mousemove', function (event) {
-			if (!startPos) { return; }
-			continueDrag(WWPElm, event.pageX, event.pageY);
-		});
-
-		WWPElm.element.on('mouseleave', function (event) {
-			endDrag();
-		});
-
-		WWPElm.element.on('mouseup', function () {
-			endDrag();
-		});
+		WWPElm.on('mousedown', startDrag);
+		WWPElm.on('mousemove', continueDrag);
+		WWPElm.on('mouseleave', endDrag);
+		WWPElm.on('mouseup', endDrag);
 	}
 
 	/**
@@ -57,46 +40,48 @@ window.wwp = window.wwp || {};
 	 */
 	function handleTouchEvents(WWPElm) {
 
-		WWPElm.element.on('touchstart', function (event) {
-			event.preventDefault(); // prevent scrolling
-
+		WWPElm.onTouch('touchstart', function (event, offset) {
 			// only draw with one finger - cancel on + fingers
 			if (event.originalEvent.touches.length === 1) {
-				startDrag(WWPElm, event.originalEvent.touches[0].pageX, event.originalEvent.touches[0].pageY);
-			} else {
+				startDrag(event, offset);
+			}
+			else {
 				endDrag();
 			}
 		});
-
-		WWPElm.element.on('touchend', function (event) {
-			endDrag();
-		});
-
-		WWPElm.element.on('touchmove', function (event) {
-			continueDrag(WWPElm, event.originalEvent.touches[0].pageX, event.originalEvent.touches[0].pageY);
-		});
+		WWPElm.onTouch('touchend', endDrag);
+		WWPElm.onTouch('touchmove', continueDrag);
 	}
 
 
-	function startDrag(WWPElm, pageX, pageY) {
-		startPos = WWPElm.elementPositionFromPagePosition(pageX, pageY);
+	/**
+	 * Drawing UI logic - save start position for continuous dragging
+	 * @param offset
+	 */
+	function startDrag(event, offset) {
+		event.preventDefault(); // prevent text from being selected when draw leaves area
+		startPos = offset;
 	}
 
-	function continueDrag(WWPElm, pageX, pageY) {
-		if (!startPos) {
-			return;
-		}
-		var currentPos = WWPElm.elementPositionFromPagePosition(pageX, pageY);
-		wwp.drawLine(startPos.x, startPos.y, currentPos.x, currentPos.y);
-		startPos = currentPos;
+	/**
+	 * Drawing UI logic - draw line from start position to current position
+	 * @param offset
+	 */
+	function continueDrag(event, offset) {
+		if (!startPos) { return; }
+		wwp.drawLine(startPos.x, startPos.y, offset.x, offset.y);
+		startPos = offset;
 	}
 
+	/**
+	 * Drawing UI logic - stop drawing by setting startPos to null, invalidating calls to continueDrag
+	 */
 	function endDrag() {
 		startPos = null;
 	}
 
 	/**
-	 *
+	 * Drawing logic - draw a line for the given coordinates
 	 * @param startX
 	 * @param startY
 	 * @param endX
@@ -105,34 +90,6 @@ window.wwp = window.wwp || {};
 	 */
 	wwp.drawLine = function(startX, startY, endX, endY) {
 		return paper.path("M" + startX + "," + startY + "L" + endX + "," + endY);
-	};
-
-
-
-	/**
-	 * given an array with 4 coordinates, returns SVG path string (MX,YLX,Y)
-	 * @param coordinates
-	 * @return {String}
-	 */
-	wwp.coordinateArrayToPath = function(coordinates) {
-		return 'M' + coordinates[0] + ',' + coordinates[1] + 'L' + coordinates[2] + ',' + coordinates[3];
-	};
-
-	/**
-	 * given an SVG path string (MX,YLX,Y), returns array with 4 coordinates
-	 * @param coordinates
-	 * @return {String}
-	 */
-	wwp.svgPathToCoordinateArray = function(svgPath) {
-		svgPath = svgPath.substr(1); // get rid of 'M'
-		var parts = svgPath.split('L'), coordinates = {};
-		coordinates.start = parts[0];
-		coordinates.end = parts[1];
-
-		coordinates.start = coordinates.start.split(',');
-		coordinates.end = coordinates.end.split(',');
-
-		return [coordinates.start[0], coordinates.start[1], coordinates.end[0], coordinates.end[1]];
 	};
 
 }());

@@ -13,6 +13,35 @@ window.wwp = window.wwp || {};
 	};
 
 	/**
+	 * Attaches an event listener to the element which gets called with relative coordinates
+	 * @param type
+	 * @param callback
+	 */
+	DomElement.prototype.on = function(type, callback) {
+		var self = this;
+		this.element.on(type, function(event) {
+			var relativeCoordinates = self.elementPositionFromPagePosition(event.pageX, event.pageY);
+			callback(event, relativeCoordinates);
+		});
+	};
+
+	/**
+	 * Attaches an event listener to the element which gets called with relative coordinates
+	 * @param type
+	 * @param callback
+	 */
+	DomElement.prototype.onTouch = function(type, callback) {
+		var self = this;
+		this.element.on(type, function(event) {
+			var relativeCoordinates = self.elementPositionFromPagePosition(
+				event.originalEvent.touches[0].pageX
+				, event.originalEvent.touches[0].pageY
+			);
+			callback(event, relativeCoordinates);
+		});
+	};
+
+	/**
 	 * Calculates relative coordinates on element from absolute coordinates on page
 	 * @param pageX
 	 * @param pageY

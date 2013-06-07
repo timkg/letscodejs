@@ -56,7 +56,7 @@
 
 		it('transforms coordinate array into SVG path string', function() {
 			var coordinates = [100, 100, 120, 130];
-			expect(wwp.coordinateArrayToPath(coordinates)).to.equal('M100,100L120,130');
+			expect(coordinateArrayToPath(coordinates)).to.equal('M100,100L120,130');
 		});
 
 	});
@@ -278,7 +278,7 @@
 
 
 	/**
-	 * Utility functions
+	 * Mouse simulation functions
 	 *
 	 */
 
@@ -400,6 +400,43 @@
 		return (typeof Touch === 'object');
 	}
 
+	function mouseDown(WWPElement, elementX, elementY) {
+		mouseEvent('mousedown', WWPElement, elementX, elementY);
+	}
+
+	function mouseUp(WWPElement, elementX, elementY) {
+		mouseEvent('mouseup', WWPElement, elementX, elementY);
+	}
+
+	function mouseMove(WWPElement, elementX, elementY) {
+		mouseEvent('mousemove', WWPElement, elementX, elementY);
+	}
+
+	function mouseLeave(WWPElement, elementX, elementY) {
+		mouseEvent('mouseleave', WWPElement, elementX, elementY);
+	}
+
+	function mouseEvent(type, WWPElm, elementX, elementY) {
+		var event = $.Event(type);
+		var pagePosition = WWPElm.pagePositionFromElementPosition(elementX, elementY);
+		event.pageX = pagePosition.x;
+		event.pageY = pagePosition.y;
+		WWPElm.element.trigger(event);
+	}
+
+	/**
+	 * Test helper functions
+	 *
+	 */
+
+	function getElementsOnDrawingArea(paper) {
+		var elements = [];
+		paper.forEach(function (element) {
+			elements.push(element);
+		});
+		return elements;
+	}
+
 	function pathFor(element) {
 		if (Raphael.vml) {
 			return vmlPathFor(element);
@@ -414,7 +451,7 @@
 		var path = element.node.attributes.d.value;
 		if (path.indexOf(",") !== -1) {
 			// We're in Firefox, Safari, Chrome, which uses format "M20,30L30,300"
-			return wwp.svgPathToCoordinateArray(path);
+			return svgPathToCoordinateArray(path);
 		}
 		else {
 			// We're in IE9, which uses format "M 20 30 L 30 300"
@@ -443,37 +480,30 @@
 		return [startX, startY, endX, endY];
 	}
 
-
-	function mouseDown(WWPElement, elementX, elementY) {
-		mouseEvent('mousedown', WWPElement, elementX, elementY);
+	/**
+	 * given an array with 4 coordinates, returns SVG path string (MX,YLX,Y)
+	 * @param coordinates
+	 * @return {String}
+	 */
+	function coordinateArrayToPath (coordinates) {
+		return 'M' + coordinates[0] + ',' + coordinates[1] + 'L' + coordinates[2] + ',' + coordinates[3];
 	}
 
-	function mouseUp(WWPElement, elementX, elementY) {
-		mouseEvent('mouseup', WWPElement, elementX, elementY);
-	}
+	/**
+	 * given an SVG path string (MX,YLX,Y), returns array with 4 coordinates
+	 * @param svgPath
+	 * @return {Array}
+	 */
+	function svgPathToCoordinateArray(svgPath) {
+		svgPath = svgPath.substr(1); // get rid of 'M'
+		var parts = svgPath.split('L'), coordinates = {};
+		coordinates.start = parts[0];
+		coordinates.end = parts[1];
 
-	function mouseMove(WWPElement, elementX, elementY) {
-		mouseEvent('mousemove', WWPElement, elementX, elementY);
-	}
+		coordinates.start = coordinates.start.split(',');
+		coordinates.end = coordinates.end.split(',');
 
-	function mouseLeave(WWPElement, elementX, elementY) {
-		mouseEvent('mouseleave', WWPElement, elementX, elementY);
-	}
-
-	function mouseEvent(type, WWPElm, elementX, elementY) {
-		var event = $.Event(type);
-		var pagePosition = WWPElm.pagePositionFromElementPosition(elementX, elementY);
-		event.pageX = pagePosition.x;
-		event.pageY = pagePosition.y;
-		WWPElm.element.trigger(event);
-	}
-
-	function getElementsOnDrawingArea(paper) {
-		var elements = [];
-		paper.forEach(function (element) {
-			elements.push(element);
-		});
-		return elements;
+		return [coordinates.start[0], coordinates.start[1], coordinates.end[0], coordinates.end[1]];
 	}
 
 }());
