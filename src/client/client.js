@@ -39,9 +39,9 @@ window.wwp = window.wwp || {};
 	}
 
 	/**
-	 * -------------------------------------------------------------------
-	 * Drawing UI behaviour - connect event listeners to drawing functions
-	 * -------------------------------------------------------------------
+	 * ------------------------------------------------------------------
+	 * Drawing UI behaviour - map UI event listeners to drawing functions
+	 * ------------------------------------------------------------------
 	 */
 
 	function handleStartDrag(event, offset) {
