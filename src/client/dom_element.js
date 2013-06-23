@@ -1,7 +1,7 @@
 window.wwp = window.wwp || {};
 
 (function () {
-	/*global $*/
+	/*global $, wwp, TouchList, Touch*/
 	"use strict";
 
 	/**
@@ -23,7 +23,8 @@ window.wwp = window.wwp || {};
 	 *   Usage: WWPElm.triggerMouse('move', 30, 30)
 	 *     -> triggers a mousemove event on the element, at relative coordinates 30,30
 	 * @param type
-	 * @param event
+	 * @param elementX
+	 * @param elementY
 	 */
 	DomElement.prototype.triggerMouse = function(type, elementX, elementY) {
 		var event = $.Event('mouse'+type);
@@ -190,6 +191,12 @@ window.wwp = window.wwp || {};
 	};
 
 	/**
+	 * ---------------------------
+	 * DOM geometry helper methods
+	 * ---------------------------
+	 */
+
+	/**
 	 * Calculates relative coordinates on element from absolute coordinates on page
 	 * @param pageX
 	 * @param pageY
@@ -226,10 +233,10 @@ window.wwp = window.wwp || {};
 	DomElement.prototype.contentOffset = function() {
 		var borderLeftWidth, paddingLeft, borderTopWidth, paddingTop;
 
-		borderLeftWidth = parseInt(this.element.css('border-left-width'), 10);
-		paddingLeft = parseInt(this.element.css('padding-left'), 10);
-		borderTopWidth = parseInt(this.element.css('border-top-width'), 10);
-		paddingTop = parseInt(this.element.css('padding-top'), 10);
+		borderLeftWidth = parseInt((this.element.css('border-left-width') || 0), 10);
+		paddingLeft = parseInt((this.element.css('padding-left') || 0), 10);
+		borderTopWidth = parseInt((this.element.css('border-top-width') || 0), 10);
+		paddingTop = parseInt((this.element.css('padding-top') || 0), 10);
 
 		return {x: borderLeftWidth + paddingLeft, y: borderTopWidth + paddingTop};
 	};
